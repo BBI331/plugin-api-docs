@@ -57,7 +57,10 @@
     background: var(--card);
     border-radius: 10px; padding: 14px 16px; font-size: 13px;
     box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    /* 위치 이동은 스크립트가 transform 으로, 확대는 CSS 가 scale 로 맡아 서로 간섭하지 않는다 */
+    scale: 1; transition: scale .22s cubic-bezier(.22, 1, .36, 1);
   }
+  nav.toc:hover { scale: 1.035; }
   nav.toc b {
     display: block; color: var(--accent); font-size: 11px; letter-spacing: 1px;
     margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
@@ -65,9 +68,10 @@
   nav.toc a {
     display: block; color: var(--muted); text-decoration: none;
     padding: 5px 0 5px 10px; border-left: 2px solid transparent;
-    transition: color .15s, border-color .15s;
+    transform-origin: left center; scale: 1;
+    transition: color .15s, border-color .15s, scale .18s cubic-bezier(.22, 1, .36, 1);
   }
-  nav.toc a:hover { color: var(--text); }
+  nav.toc a:hover { color: var(--text); scale: 1.07; }
   nav.toc a.on { color: var(--accent); border-left-color: var(--accent); }
 
   /* 목차 아래에 따로 떠 있는 '메인 페이지로 이동' 블럭 */
@@ -78,9 +82,10 @@
     border-radius: 10px;
     padding: 11px 12px; font-size: 12.5px; font-weight: 700;
     box-shadow: 0 10px 30px rgba(0,0,0,.35);
-    will-change: transform; transition: color .15s;
+    will-change: transform; scale: 1;
+    transition: color .15s, scale .22s cubic-bezier(.22, 1, .36, 1);
   }
-  .homeCard:hover { color: var(--accent); }
+  .homeCard:hover { color: var(--accent); scale: 1.05; }
 
   /* 목차 자리만큼 지면을 좁혀준다 — 본문은 그 안에서 그대로 가운데 정렬된다 */
   @media (min-width: 1180px) {
