@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIBI Plugin API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;600;700&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: "MinecraftTen";
+    src: url("assets/fonts/MinecraftTen.ttf") format("truetype");
+    font-display: swap;
+  }
+  :root {
+    --bg: #0b0e14;          /* 페이지 바탕 (짙은 남색-검정) */
+    --bar: #05070a;         /* 상단 바 */
+    --text: #e8ecf1;
+    --muted: #8b95a3;
+    --ver: #59c2ff;         /* 버전 표기 (하늘색) */
+    --card-border: #e8ecf1;
+  }
+  /* 브라우저 네이티브 페이지 전환 — 뒤로가기·앞으로가기까지 부드럽게 이어진다
+     (웹 주소로 열었을 때 동작. file:// 로 열면 아래 수동 페이드가 대신 쓰인다) */
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .32s; }
+
+  * { box-sizing: border-box; }
+  /* 페이지 전환 — 들어올 때 스르륵 나타나고, 문서로 넘어갈 때 부드럽게 사라진다
+     (hero 가 fixed 라 transform 대신 opacity 만 쓴다) */
+  body { opacity: 1; transition: opacity .3s ease; }
+  body.pageLeave { opacity: 0; }
+  body.pageEnter { opacity: 0; }
+  /* 스크롤 스냅은 쓰지 않는다 — 자체 전환 애니메이션과 브라우저 스냅이 서로 끌어당겨 모션이 깨진다 */
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", sans-serif;
+  }
+  .pixel { font-family: "MinecraftTen", monospace; }
+
+  /* ─ 히어로 — 첫 화면 가득, 스크롤하면 위로 밀려나가고 아래 25vh 만 상단에 고정.
+     sticky top 을 음수(-75vh)로 두면 height 변경(재배치) 없이 순수 스크롤 합성만으로 접힌다. ─ */
+  /* ─ 구조: 배경은 화면에 고정(fixed)된 레이어이고, 스크롤 진행도에 맞춰 transform 으로만
+     위로 밀려난다(75vh). 카드 화면(page2)은 그 위로 미끄러져 올라와 정확히 배경의 남은
+     25vh 띠 아래에 붙는다 — 양방향 싱크가 구조적으로 일치하고 전부 합성 연산이라 부드럽다. ─ */
+  .heroZone { height: 100vh; } /* fixed 배경 자리를 차지하는 스페이서 */
+  .page2 {
+    position: relative; z-index: 1; background: var(--bg);
+    min-height: 100vh;
+  }
+  .hero {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 0 16px; overflow: hidden;
+    background: var(--bg) url("assets/hero.avif") center bottom / cover no-repeat;
+    will-change: transform;
+  }
+  .heroBody { display: flex; flex-direction: column; align-items: center; will-change: transform; }
+  /* 그라데이션은 별도 오버레이로 — 배경의 움직이는 이미지(AVIF)가 프레임을 갱신해도
+     같은 레이어의 그라데이션을 덮어버리지 않도록 요소를 분리한다 */
+  .hero::before {
+    /* 색은 페이지 배경(#0b0e14 = rgb 11,14,20)과 완전히 동일한 색조만 사용 —
+       다른 색을 섞으면 어두워지는 띠가 '다른 배경'처럼 끊겨 보인다 */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(circle at left bottom, rgba(11,14,20,.7) 0%, rgba(11,14,20,0) 48%),
+      radial-gradient(circle at right bottom, rgba(11,14,20,.7) 0%, rgba(11,14,20,0) 48%),
+      linear-gradient(45deg, rgba(11,14,20,.6) 0%, rgba(11,14,20,0) 30%),
+      linear-gradient(315deg, rgba(11,14,20,.6) 0%, rgba(11,14,20,0) 30%),
+      linear-gradient(180deg,
+        rgba(11,14,20,0) 0%,
+        rgba(11,14,20,.18) 24%,
+        rgba(11,14,20,.42) 42%,
+        rgba(11,14,20,.62) 60%,
+        rgba(11,14,20,.8) 76%,
+        rgba(11,14,20,.92) 90%,
+        #0b0e14 100%);
+  }
+  .hero > * { position: relative; z-index: 1; }
+  .hero .avatar {
+    width: 46px; height: 46px; border-radius: 50%;
+    border: 2px solid #ffffff; background: #202634 center/cover no-repeat;
+    background-image: url("assets/avatar.png");
+    position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+    image-rendering: pixelated;
+  }
+  /* 타이틀 묶음 — 자간·행간이 고정된 채 통째로 확대/축소된다 (하단 스크롤 상태에서 75%) */
+  .hero .title { transform-origin: center bottom; will-change: transform; }
+  .hero .brand {
+    font-size: clamp(38px, 6.8vw, 57px); color: #fff; letter-spacing: 1px;
+    line-height: 1; margin-bottom: -9px;
+  }
+  .hero h1 {
+    margin: 0; font-size: clamp(51px, 12vw, 96px); color: #fff; letter-spacing: 2px;
+    line-height: 1;
+  }
+  /* PLUGIN API 아래 작은 링크 아이콘 줄 */
+  .hero .icons { display: flex; gap: 26px; margin-top: 34px; justify-content: center; }
+  .hero .icons a {
+    display: block; width: 34px; height: 34px; opacity: .92;
+    transition: opacity .28s cubic-bezier(.22, 1, .36, 1), transform .28s cubic-bezier(.22, 1, .36, 1);
+  }
+  .hero .icons a:hover { opacity: 1; transform: scale(1.15); }
+  .hero .icons img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+  .hero .icons a.no-crop img { border-radius: 0; } /* 로고 원형이 잘리는 아이콘용 */
+
+  /* 첫 화면 하단 스크롤 안내 — "FIND YOUR PLUGINS" + 위아래로 까딱이는 삼각형 화살표 */
+  .hero .scrollHint {
+    position: absolute; bottom: 72px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    pointer-events: none;
+  }
+  .hero .scrollHint .hintText {
+    font-family: "Noto Sans", "Malgun Gothic", sans-serif;
+    font-size: 16px; font-weight: 300; color: #fff; letter-spacing: 3px; opacity: .85;
+  }
+  .hero .scrollHint .hintArrow {
+    width: 0; height: 0;
+    border-left: 9px solid transparent; border-right: 9px solid transparent;
+    border-top: 12px solid #fff; opacity: .85;
+    animation: hintBob 1.6s ease-in-out infinite;
+  }
+  @keyframes hintBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  /* ─ 카드 ─ */
+  .cards {
+    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+    padding: 44px 16px 70px;
+  }
+  /* 하단 도착 시 카드가 왼쪽부터 순서대로 떠오르며 페이드 인 — 등장은 래퍼가 맡아
+     카드 자체의 호버 확대와 충돌하지 않는다 */
+  .cards .cardWrap { opacity: 0; display: flex; } /* 카드 높이를 줄 전체에 맞춰 늘린다 */
+  .cards.show .cardWrap { animation: cardIn .6s cubic-bezier(.22, 1, .36, 1) forwards; }
+  .cards.show .cardWrap:nth-child(1) { animation-delay: .05s; }
+  .cards.show .cardWrap:nth-child(2) { animation-delay: .2s; }
+  .cards.show .cardWrap:nth-child(3) { animation-delay: .35s; }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(34px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card {
+    display: block; width: 200px; text-decoration: none; color: var(--text);
+    background: #10141c; border-radius: 4px;
+    padding: 0 0 12px; text-align: center; overflow: hidden;
+    transition: transform .28s cubic-bezier(.22, 1, .36, 1), box-shadow .28s cubic-bezier(.22, 1, .36, 1);
+  }
+  a.card:hover { transform: scale(1.045); box-shadow: 0 8px 22px rgba(0,0,0,.45); }
+  .card .thumb {
+    width: 100%; aspect-ratio: 10/11; border-radius: 4px 4px 0 0;
+    background: #1a2030 center/cover no-repeat;
+    image-rendering: pixelated;
+    position: relative; overflow: hidden;
+  }
+  .card .thumb::after {
+    /* 카드 이미지 하단 그라데이션 — 카드 배경색으로 녹아들게 */
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(16,20,28,0) 55%, rgba(16,20,28,.95) 100%);
+  }
+  .card .name {
+    font-size: 30px; color: #fff; margin: 12px 0 4px; letter-spacing: 1px;
+  }
+  .card .ver {
+    display: inline-block; font-family: "Noto Sans", "Malgun Gothic", sans-serif;
+    font-size: 11px; font-weight: 700; color: #5376af; letter-spacing: .5px;
+    background: #1a2850; border-radius: 4px; padding: 2px 11px;
+  }
+  .card.soon { cursor: default; opacity: .55; }
+  .card.soon:hover { transform: none; box-shadow: none; }
+
+  footer {
+    text-align: center; color: var(--muted); font-size: 12px;
+    padding: 26px 16px 40px; border-top: 1px solid #1a2030;
+  }
+  footer b { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="heroZone" id="heroZone">
+  <div class="hero" id="hero">
+    <div class="avatar" id="heroAvatar"></div>
+    <div class="heroBody" id="heroBody">
+      <div class="title" id="heroTitle">
+        <div class="brand pixel">BIBI</div>
+        <h1 class="pixel">PLUGIN API</h1>
+      </div>
+      <div class="icons">
+        <a href="https://github.com/BBI331" target="_blank" title="GitHub"><img src="assets/icons/github.png" alt="GitHub"></a>
+        <a href="https://litt.ly/bbi331" target="_blank" title="리틀리"><img src="assets/icons/littly.png" alt="리틀리"></a>
+        <a href="https://www.youtube.com/@bbibbi5578" target="_blank" class="no-crop" title="유튜브"><img src="assets/icons/youtube.png" alt="유튜브"></a>
+        <a href="https://discord.gg/FybxC7CEZr" target="_blank" class="no-crop" title="디스코드"><img src="assets/icons/discord.svg" alt="디스코드"></a>
+      </div>
+    </div>
+    <div class="scrollHint" id="scrollHint">
+      <div class="hintText">FIND YOUR PLUGINS</div>
+      <div class="hintArrow"></div>
+    </div>
+  </div>
+</div>
+
+<div class="page2">
+<div class="cards" id="cards">
+  <div class="cardWrap">
+    <a class="card" href="encbook/api.html">
+      <div class="thumb" style="background-image:url('assets/cards/encbook.png')"></div>
+      <div class="name pixel">ENCBOOK</div>
+      <div class="ver">3.0.0 ALPHA 1</div>
+    </a>
+  </div>
+
+  <div class="cardWrap">
+    <div class="card soon">
+      <div class="thumb"></div>
+      <div class="ver" style="margin-top: 22px;">COMING SOON</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  제작 <b>BIBI</b> · Discord <b>bibi.221</b>
+</footer>
+</div>
+
+<script>
+  // 페이지 전환 — 같은 사이트 안의 링크는 화면을 부드럽게 지운 뒤 이동한다
+  (function () {
+    // 브라우저가 네이티브 전환을 처리하면(웹 주소로 열었을 때) 수동 페이드는 쓰지 않는다
+    if (typeof CSSViewTransitionRule !== "undefined" && location.protocol !== "file:") return;
+
+    function fadeIn() {
+      document.body.classList.remove("pageLeave");
+      document.body.classList.add("pageEnter");
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { document.body.classList.remove("pageEnter"); });
+      });
+    }
+    fadeIn();
+    // 뒤로가기는 페이지를 캐시에서 그대로 되살리므로, 그때도 같은 등장 연출을 재생한다
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) fadeIn();
+      else document.body.classList.remove("pageLeave", "pageEnter");
+      window.dispatchEvent(new Event("scroll")); // 복원된 스크롤 위치에 맞춰 히어로 상태 갱신
+    });
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest ? e.target.closest("a") : null;
+      if (!a) return;
+      var href = a.getAttribute("href");
+      if (!href || a.target === "_blank" || href.charAt(0) === "#" || href.indexOf("http") === 0) return;
+      e.preventDefault();
+      document.body.classList.add("pageLeave");
+      setTimeout(function () { location.href = href; }, 300);
+    });
+  })();
+
+  (function () {
+    var hero = document.getElementById("hero");
+    var body = document.getElementById("heroBody");
+    var title = document.getElementById("heroTitle");
+    var avatar = document.getElementById("heroAvatar");
+    var hint = document.getElementById("scrollHint");
+    var cards = document.getElementById("cards");
+
+    // 모든 움직임이 같은 진행도 p 를 쓴다 — 배경·글자·카드가 항상 함께 움직인다 (전부 합성 연산)
+    var ticking = false;
+    function apply() {
+      ticking = false;
+      var range = window.innerHeight * 0.75;                 // 전환에 쓰는 스크롤 구간 = 75vh
+      var p = Math.min(1, Math.max(0, window.scrollY / range));
+      hero.style.transform = "translateY(" + (-p * 75) + "vh)";      // 배경을 위로 밀어낸다 (25vh 띠만 남음)
+      body.style.transform = "translateY(" + (p * 37.5) + "vh)";     // 화면 중앙 → 고정 25vh 띠의 중앙
+      title.style.transform = "scale(" + (1 - 0.25 * p) + ")";       // 타이틀 100% → 75%
+      avatar.style.transform = "translate(-50%, " + (p * 75) + "vh)"; // 아바타는 항상 화면 상단
+      hint.style.opacity = String(Math.max(0, 1 - p * 2.5));          // 내려가기 시작하면 안내는 빠르게 사라진다
+      // 하단에 거의 도착하면 카드 순차 등장 — 위로 돌아가면 초기화해 다음에 다시 재생된다
+      if (p > 0.6) cards.classList.add("show");
+      else if (p < 0.15) cards.classList.remove("show");
+    }
+    function onScrollOrResize() {
+      if (!ticking) { ticking = true; requestAnimationFrame(apply); }
+    }
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
+    apply();
+
+    // 휠 한 틱 → 0.5초 고정 자체 애니메이션으로 즉시 페이지 전환 (내장 smooth 의 지연 없음)
+    var animating = false;
+    function page2Top() { return Math.round(window.innerHeight * 0.75); }
+    function glideTo(target) {
+      animating = true;
+      var start = window.scrollY, diff = target - start, t0 = performance.now(), D = 500;
+      function step(now) {
+        var t = Math.min(1, (now - t0) / D);
+        var e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // easeInOutCubic
+        window.scrollTo(0, start + diff * e);
+        if (t < 1) requestAnimationFrame(step);
+        else animating = false;
+      }
+      requestAnimationFrame(step);
+    }
+    window.addEventListener("wheel", function (e) {
+      var target = page2Top();
+      if (e.deltaY > 0 && window.scrollY < target - 2) {
+        e.preventDefault();                       // 아래로 살짝만 굴려도 페이지 2로
+        if (!animating) glideTo(target);
+      } else if (e.deltaY < 0 && window.scrollY <= target + 2) {
+        e.preventDefault();                       // 위로 살짝만 굴려도 첫 화면으로
+        if (!animating) glideTo(0);
+      }
+    }, { passive: false });
+  })();
+</script>
+
+</body>
+</html>
