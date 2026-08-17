@@ -53,14 +53,14 @@
   nav.toc {
     /* 문서 위에 얹힌 채, 스크립트가 본문 오른쪽 옆에 붙이고 화면 중앙을 부드럽게 쫓아가게 한다 */
     position: absolute; top: 0; left: 0;
-    width: 176px; z-index: 10; will-change: transform;
+    width: 176px; z-index: 10; will-change: translate;
     background: var(--card);
     border-radius: 10px; padding: 14px 16px; font-size: 13px;
     box-shadow: 0 10px 30px rgba(0,0,0,.35);
-    /* 위치 이동은 스크립트가 transform 으로, 확대는 CSS 가 scale 로 맡아 서로 간섭하지 않는다 */
+    /* 위치는 스크립트가 translate 로, 확대는 CSS 가 scale 로 맡아 서로 간섭하지 않는다 */
     scale: 1; transition: scale .22s cubic-bezier(.22, 1, .36, 1);
   }
-  nav.toc:hover { scale: 1.035; }
+  nav.toc:hover { scale: 1.07; }
   nav.toc b {
     display: block; color: var(--accent); font-size: 11px; letter-spacing: 1px;
     margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
@@ -71,7 +71,7 @@
     transform-origin: left center; scale: 1;
     transition: color .15s, border-color .15s, scale .18s cubic-bezier(.22, 1, .36, 1);
   }
-  nav.toc a:hover { color: var(--text); scale: 1.07; }
+  nav.toc a:hover { color: var(--text); scale: 1.13; }
   nav.toc a.on { color: var(--accent); border-left-color: var(--accent); }
 
   /* 목차 아래에 따로 떠 있는 '메인 페이지로 이동' 블럭 */
@@ -82,10 +82,10 @@
     border-radius: 10px;
     padding: 11px 12px; font-size: 12.5px; font-weight: 700;
     box-shadow: 0 10px 30px rgba(0,0,0,.35);
-    will-change: transform; scale: 1;
+    will-change: translate; scale: 1;
     transition: color .15s, scale .22s cubic-bezier(.22, 1, .36, 1);
   }
-  .homeCard:hover { color: var(--accent); scale: 1.05; }
+  .homeCard:hover { color: var(--accent); scale: 1.09; }
 
   /* 목차 자리만큼 지면을 좁혀준다 — 본문은 그 안에서 그대로 가운데 정렬된다 */
   @media (min-width: 1180px) {
@@ -94,7 +94,7 @@
   /* 좁은 화면 — 예전처럼 문서 위 가로 목차로 되돌린다 */
   @media (max-width: 1179px) {
     nav.toc {
-      position: static; transform: none !important; left: auto !important;
+      position: static; transform: none !important; translate: none !important; left: auto !important;
       width: auto; margin-bottom: 30px;
       box-shadow: none; background: var(--accent-soft);
     }
@@ -104,7 +104,7 @@
     }
     nav.toc a.on { border-left: none; }
     .homeCard {
-      position: static; transform: none !important; left: auto !important;
+      position: static; transform: none !important; translate: none !important; left: auto !important;
       width: auto; margin: 0 0 26px; box-shadow: none;
     }
   }
@@ -631,8 +631,10 @@ on EncbookUnlockEvent:
       return Math.max(24, Math.min(want, max));
     }
     function paint() {
-      toc.style.transform = "translateY(" + pos.toFixed(2) + "px)";
-      if (home) home.style.transform = "translateY(" + (pos + toc.offsetHeight + 12).toFixed(2) + "px)";
+      // transform 이 아니라 개별 translate 속성을 쓴다 —
+      // transform 은 scale(호버 확대) 다음에 적용돼 이동값이 배율만큼 밀려버린다
+      toc.style.translate = "0 " + pos.toFixed(2) + "px";
+      if (home) home.style.translate = "0 " + (pos + toc.offsetHeight + 12).toFixed(2) + "px";
     }
     function follow() {
       var target = targetY();
@@ -643,8 +645,8 @@ on EncbookUnlockEvent:
     }
     function kick() {
       if (window.innerWidth < 1180) {                   // 좁은 화면(가로 목차)에서는 이동시키지 않는다
-        toc.style.transform = "";
-        if (home) home.style.transform = "";
+        toc.style.translate = "";
+        if (home) home.style.translate = "";
         pos = null;
         return;
       }
