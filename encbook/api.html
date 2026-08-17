@@ -405,7 +405,9 @@ CANCELLED(이벤트에서 취소됨) · PENDING(오프라인 대상이라 비동
   <div class="line"><span class="name">EncbookFeatherUseEvent</span><span class="cancel-o">취소 가능</span></div>
   <p><b>비비의 깃펜 사용</b><br>잠긴 도감 슬롯에 깃펜을 사용하는 순간 발생합니다.
      취소하면 깃펜이 소모되지 않고 해금도 이루어지지 않습니다.
-     취소하지 않으면 이어서 EncbookUnlockEvent(FEATHER) 가 발생합니다.</p>
+     취소하지 않으면 이어서 EncbookUnlockEvent(FEATHER) 가 발생합니다.
+     config 에서 <code>비비의 깃펜 사용 가능 여부</code> 를 false 로 설정한 카테고리는 깃펜 사용 자체가 거부되므로
+     이 이벤트도 발생하지 않습니다.</p>
   <p class="get"><span class="p" data-tip="깃펜을 사용한 플레이어">getPlayer()</span> ·
      <span class="p" data-tip="사용 대상 슬롯의 카테고리 번호 (1~5)">getCategory()</span> ·
      <span class="p" data-tip="사용 대상 슬롯의 페이지 번호">getPage()</span> ·

@@ -72,12 +72,33 @@
 <ol>
   <li><code>encbook.jar</code> 를 서버의 <code>plugins</code> 폴더에 넣습니다.</li>
   <li>서버를 시작(재시작)합니다 — ItemsAdder(또는 Nexo) 콘텐츠가 자동으로 설치되고,
-      리소스팩 재생성(<code>/iazip</code>)까지 자동 실행됩니다.</li>
+      콘솔 안내에 따라 <code>/iareload</code> 후 <code>/iazip</code>(Nexo: <code>/nexo reload</code>)을 실행하면 반영됩니다.
+      리소스팩 재생성은 서버 전체 콘텐츠에 영향을 주는 작업이라 직접 실행하도록 되어 있으며,
+      config 의 <code>콘텐츠 자동 반영</code> 을 true 로 바꾸면 자동 실행됩니다.</li>
   <li>리소스팩 재적용 후 <code>/도감</code> 으로 확인하면 끝!</li>
 </ol>
 <div class="note">
   <b>업데이트</b> : 새 jar 로 교체하고 재시작하면 콘텐츠·설정이 자동 갱신됩니다.
   직접 수정한 콘텐츠 파일은 덮어쓰지 않고 보존합니다. PlugMan 리로드도 안전합니다.
+</div>
+
+<h2>카테고리 설정</h2>
+<p><code>config.yml</code> 의 <code>카테고리</code> 아래에서 1번~5번 카테고리를 각각 설정합니다.
+수정 후 <code>/도감 리로드</code> 로 즉시 반영됩니다.</p>
+<table>
+  <tr><th>항목</th><th>설명</th></tr>
+  <tr><td><code>이름</code></td><td>카테고리 표시 이름 (색코드 <code>&amp;</code> 사용 가능)</td></tr>
+  <tr><td><code>이름만 인식</code></td><td>true 면 로어를 무시하고 아이템 이름만 비교합니다 (물고기 크기 로어 대응)</td></tr>
+  <tr><td><code>페이지 수</code></td><td>이 카테고리의 페이지 수 (1~9, 권장 5 이하)</td></tr>
+  <tr><td><code>소모 없이 등록</code></td><td>true 면 아이템을 가져가지 않고 보유 확인만으로 등록합니다</td></tr>
+  <tr><td><code>활성화</code></td><td>false 면 카테고리가 잠기고 진입할 수 없습니다</td></tr>
+  <tr><td><code>완료 방송</code></td><td>카테고리 완료 보상 수령 시 전체 방송 여부</td></tr>
+  <tr><td><code>비비의 깃펜 사용 가능 여부</code></td><td>false 면 이 카테고리에서는 깃펜으로 해금할 수 없습니다 (깃펜도 소모되지 않음)</td></tr>
+</table>
+<div class="note">
+  <b>비비의 깃펜</b> : 아이템을 보유하지 않아도 슬롯을 해금하는 소모품입니다.
+  희귀 아이템이 모인 카테고리처럼 깃펜으로 건너뛰면 안 되는 곳은
+  <code>비비의 깃펜 사용 가능 여부</code> 를 false 로 두세요.
 </div>
 
 <h2>명령어</h2>
