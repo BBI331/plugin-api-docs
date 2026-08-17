@@ -50,17 +50,20 @@
   header p { margin: 0; color: var(--muted); }
 
   /* ─ 목차 — 넓은 화면에서는 우측에 떠서 스크롤을 따라다닌다 ─ */
-  nav.toc {
-    /* 문서 위에 얹힌 채, 스크립트가 본문 오른쪽 옆에 붙이고 화면 중앙을 부드럽게 쫓아가게 한다 */
+  /* 위치 담당 래퍼 — 스크립트가 이 요소만 이동시킨다 (확대와 완전히 분리) */
+  .floatWrap {
     position: absolute; top: 0; left: 0;
-    width: 176px; z-index: 10; will-change: translate;
+    width: 176px; z-index: 10; will-change: transform;
+  }
+  nav.toc {
+    display: block; width: 100%;
     background: var(--card);
     border-radius: 10px; padding: 14px 16px; font-size: 13px;
     box-shadow: 0 10px 30px rgba(0,0,0,.35);
-    /* 위치는 스크립트가 translate 로, 확대는 CSS 가 scale 로 맡아 서로 간섭하지 않는다 */
-    scale: 1; transition: scale .22s cubic-bezier(.22, 1, .36, 1);
+    /* 확대는 내부 요소가 담당 — 래퍼의 이동값에 배율이 곱해지지 않는다 */
+    transform: scale(1); transition: transform .22s cubic-bezier(.22, 1, .36, 1);
   }
-  nav.toc:hover { scale: 1.07; }
+  nav.toc:hover { transform: scale(1.07); }
   nav.toc b {
     display: block; color: var(--accent); font-size: 11px; letter-spacing: 1px;
     margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
@@ -68,24 +71,23 @@
   nav.toc a {
     display: block; color: var(--muted); text-decoration: none;
     padding: 5px 0 5px 10px; border-left: 2px solid transparent;
-    transform-origin: left center; scale: 1;
-    transition: color .15s, border-color .15s, scale .18s cubic-bezier(.22, 1, .36, 1);
+    transform-origin: left center; transform: scale(1);
+    transition: color .15s, border-color .15s, transform .18s cubic-bezier(.22, 1, .36, 1);
   }
-  nav.toc a:hover { color: var(--text); scale: 1.13; }
+  nav.toc a:hover { color: var(--text); transform: scale(1.13); }
   nav.toc a.on { color: var(--accent); border-left-color: var(--accent); }
 
   /* 목차 아래에 따로 떠 있는 '메인 페이지로 이동' 블럭 */
   .homeCard {
-    position: absolute; top: 0; left: 0; width: 176px; z-index: 10;
-    display: block; text-align: center; text-decoration: none;
+    display: block; width: 100%; text-align: center; text-decoration: none;
     background: var(--card); color: var(--muted);
     border-radius: 10px;
     padding: 11px 12px; font-size: 12.5px; font-weight: 700;
     box-shadow: 0 10px 30px rgba(0,0,0,.35);
-    will-change: translate; scale: 1;
-    transition: color .15s, scale .22s cubic-bezier(.22, 1, .36, 1);
+    transform: scale(1);
+    transition: color .15s, transform .22s cubic-bezier(.22, 1, .36, 1);
   }
-  .homeCard:hover { color: var(--accent); scale: 1.09; }
+  .homeCard:hover { color: var(--accent); transform: scale(1.09); }
 
   /* 목차 자리만큼 지면을 좁혀준다 — 본문은 그 안에서 그대로 가운데 정렬된다 */
   @media (min-width: 1180px) {
@@ -93,9 +95,12 @@
   }
   /* 좁은 화면 — 예전처럼 문서 위 가로 목차로 되돌린다 */
   @media (max-width: 1179px) {
+    .floatWrap {
+      position: static; transform: none !important; left: auto !important;
+      width: auto;
+    }
     nav.toc {
-      position: static; transform: none !important; translate: none !important; left: auto !important;
-      width: auto; margin-bottom: 30px;
+      margin-bottom: 30px;
       box-shadow: none; background: var(--accent-soft);
     }
     nav.toc a {
@@ -103,10 +108,7 @@
       border-left: none; padding-left: 0;
     }
     nav.toc a.on { border-left: none; }
-    .homeCard {
-      position: static; transform: none !important; translate: none !important; left: auto !important;
-      width: auto; margin: 0 0 26px; box-shadow: none;
-    }
+    .homeCard { margin: 0 0 26px; box-shadow: none; }
   }
 
   /* 섹션 제목 — 목차 항목마다 구분선으로 확실히 나눈다 */
@@ -208,6 +210,7 @@
   <p>다른 플러그인·스크립트에서 도감을 조회·조작하고, 도감 이벤트에 반응하는 콘텐츠를 만들 수 있습니다.</p>
 </header>
 
+<div class="floatWrap" id="tocWrap">
 <nav class="toc" id="toc">
   <b>목차</b>
   <a href="#start">시작하기</a>
@@ -219,8 +222,11 @@
   <a href="#events">이벤트</a>
   <a href="#rules">규칙</a>
 </nav>
+</div>
 
+<div class="floatWrap" id="homeWrap">
 <a class="homeCard" id="homeCard" href="../index.html">메인 페이지로 이동</a>
+</div>
 
 <h2 id="start">시작하기</h2>
 
@@ -604,9 +610,9 @@ on EncbookUnlockEvent:
     });
 
     // 목차가 화면 중앙을 목표로 부드럽게 쫓아온다 — 스크롤 중엔 뒤처졌다가 멈추면 스르륵 따라붙는다
-    var toc = document.getElementById("toc");
     var wrap = document.querySelector(".wrap");
-    var home = document.getElementById("homeCard");
+    var toc = document.getElementById("tocWrap");    // 위치 담당 래퍼 (안쪽 nav 가 확대를 맡는다)
+    var home = document.getElementById("homeWrap");
     // 목차·이동 버튼은 본문 밖(body 직속)에 둔다. 본문이 위치 기준이 되면 좌표 계산이 어긋난다
     if (toc.parentElement !== document.body) document.body.appendChild(toc);
     if (home && home.parentElement !== document.body) document.body.appendChild(home);
@@ -631,10 +637,9 @@ on EncbookUnlockEvent:
       return Math.max(24, Math.min(want, max));
     }
     function paint() {
-      // transform 이 아니라 개별 translate 속성을 쓴다 —
-      // transform 은 scale(호버 확대) 다음에 적용돼 이동값이 배율만큼 밀려버린다
-      toc.style.translate = "0 " + pos.toFixed(2) + "px";
-      if (home) home.style.translate = "0 " + (pos + toc.offsetHeight + 12).toFixed(2) + "px";
+      // 래퍼만 이동시킨다. 확대는 래퍼 '안쪽' 요소가 맡으므로 이동값에 배율이 곱해지지 않는다
+      toc.style.transform = "translateY(" + pos.toFixed(2) + "px)";
+      if (home) home.style.transform = "translateY(" + (pos + toc.offsetHeight + 12).toFixed(2) + "px)";
     }
     function follow() {
       var target = targetY();
@@ -645,8 +650,8 @@ on EncbookUnlockEvent:
     }
     function kick() {
       if (window.innerWidth < 1180) {                   // 좁은 화면(가로 목차)에서는 이동시키지 않는다
-        toc.style.translate = "";
-        if (home) home.style.translate = "";
+        toc.style.transform = "";
+        if (home) home.style.transform = "";
         pos = null;
         return;
       }
