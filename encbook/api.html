@@ -1,10 +1,21 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>도감 API 문서</title>
 <link rel="icon" type="image/png" href="../assets/avatar.png">
+<script>
+  // 저장해 둔 언어를 첫 그리기 전에 적용한다 (언어가 바뀌며 깜빡이는 것 방지)
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem("bibiapi-lang"); } catch (e) {}
+    var lang = saved === "en" ? "en" : "ko";
+    document.documentElement.setAttribute("data-lang", lang);
+    document.documentElement.lang = lang;
+    if (lang === "en") document.title = "EncBook API Docs";
+  })();
+</script>
 <style>
   @font-face {
     font-family: "MinecraftTen";
@@ -24,6 +35,11 @@
   @view-transition { navigation: auto; }
   ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .32s; }
 
+  /* ─ 언어 전환 — html[data-lang] 에 따라 .ko / .en 중 현재 언어만 보인다 ─ */
+  html[data-lang="en"] .ko { display: none !important; }
+  html:not([data-lang="en"]) .en { display: none !important; }
+  html[data-lang="en"] .p::after { content: attr(data-tip-en); }
+
   * { box-sizing: border-box; }
   /* 목차 클릭 시 해당 섹션까지 부드럽게 스크롤 (제목이 화면 위에 딱 붙지 않게 여백을 둔다) */
   html { scroll-behavior: smooth; }
@@ -41,9 +57,25 @@
     line-height: 1.7; font-size: 15px;
   }
   .wrap { max-width: 860px; margin: 0 auto; padding: 36px 24px 80px; }
-  .crumb { font-size: 13px; margin-bottom: 24px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+  .crumb { font-size: 13px; }
   .crumb a { color: var(--muted); text-decoration: none; }
   .crumb a:hover { color: var(--accent); }
+
+  /* 언어 설정 버튼 — 문서 상단 오른쪽의 알약형 스위치 */
+  .langSwitch {
+    display: inline-flex; align-items: center; flex: none; gap: 2px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 999px; padding: 3px;
+  }
+  .langSwitch button {
+    appearance: none; border: none; background: none; cursor: pointer;
+    color: var(--muted); font-family: inherit; font-size: 12px; font-weight: 700;
+    padding: 4px 12px; border-radius: 999px; letter-spacing: .3px;
+    transition: color .15s, background .15s;
+  }
+  .langSwitch button:hover { color: var(--text); }
+  .langSwitch button.on { background: var(--accent-soft); color: var(--accent); }
 
   header { border-bottom: 2px solid var(--accent); padding-bottom: 18px; margin-bottom: 28px; }
   header h1 { margin: 0 0 6px; font-size: 24px; }
@@ -202,36 +234,43 @@
 <body>
 <div class="wrap">
 
-<div class="crumb"><a href="../index.html">← BIBI PLUGIN API</a></div>
+<div class="topbar">
+  <div class="crumb"><a href="../index.html">← BIBI PLUGIN API</a></div>
+  <div class="langSwitch" id="langSwitch" role="group" aria-label="언어 / Language">
+    <button type="button" data-lang-btn="ko">한국어</button>
+    <button type="button" data-lang-btn="en">English</button>
+  </div>
+</div>
 
 <header>
   <div class="pixel" style="color: var(--accent); font-size: 15px; letter-spacing: 1px; margin-bottom: 8px;">ENCBOOK</div>
-  <h1>도감 API 문서</h1>
-  <p>다른 플러그인·스크립트에서 도감을 조회·조작하고, 도감 이벤트에 반응하는 콘텐츠를 만들 수 있습니다.</p>
+  <h1><span class="ko">도감 API 문서</span><span class="en">EncBook API Docs</span></h1>
+  <p><span class="ko">다른 플러그인·스크립트에서 도감을 조회·조작하고, 도감 이벤트에 반응하는 콘텐츠를 만들 수 있습니다.</span><span
+     class="en">Query and control the encyclopedia from other plugins and scripts, and build content that reacts to encyclopedia events.</span></p>
 </header>
 
 <div class="floatWrap" id="tocWrap">
 <nav class="toc" id="toc">
-  <b>목차</b>
-  <a href="#start">시작하기</a>
-  <a href="#terms">용어</a>
-  <a href="#query">조회</a>
-  <a href="#book">도감 전체 조회</a>
-  <a href="#catalog">카탈로그</a>
-  <a href="#action">조작</a>
-  <a href="#events">이벤트</a>
-  <a href="#rules">규칙</a>
+  <b><span class="ko">목차</span><span class="en">CONTENTS</span></b>
+  <a href="#start"><span class="ko">시작하기</span><span class="en">Getting Started</span></a>
+  <a href="#terms"><span class="ko">용어</span><span class="en">Terminology</span></a>
+  <a href="#query"><span class="ko">조회</span><span class="en">Queries</span></a>
+  <a href="#book"><span class="ko">도감 전체 조회</span><span class="en">Whole Book</span></a>
+  <a href="#catalog"><span class="ko">카탈로그</span><span class="en">Catalog</span></a>
+  <a href="#action"><span class="ko">조작</span><span class="en">Actions</span></a>
+  <a href="#events"><span class="ko">이벤트</span><span class="en">Events</span></a>
+  <a href="#rules"><span class="ko">규칙</span><span class="en">Rules</span></a>
 </nav>
 </div>
 
 <div class="floatWrap" id="homeWrap">
-<a class="homeCard" id="homeCard" href="../index.html">메인 페이지로 이동</a>
+<a class="homeCard" id="homeCard" href="../index.html"><span class="ko">메인 페이지로 이동</span><span class="en">Back to Main Page</span></a>
 </div>
 
-<h2 id="start">시작하기</h2>
+<h2 id="start"><span class="ko">시작하기</span><span class="en">Getting Started</span></h2>
 
 <h3>Skript (skript-reflect)</h3>
-<pre><code>import:
+<pre class="ko"><code>import:
     kr.bibi.encbook.api.EncbookProvider
 
 set {_api} to EncbookProvider.get()
@@ -239,20 +278,36 @@ set {_api} to EncbookProvider.get()
 <span class="comment"># 1번 카테고리 · 1페이지 · 5번 도감 슬롯의 해금 여부 확인</span>
 if {_api}.isUnlocked(player's uuid, 1, 1, 5) is true:
     send "이미 해금한 도감 슬롯입니다"</code></pre>
+<pre class="en"><code>import:
+    kr.bibi.encbook.api.EncbookProvider
+
+set {_api} to EncbookProvider.get()
+
+<span class="comment"># Check whether category 1 · page 1 · slot 5 is unlocked</span>
+if {_api}.isUnlocked(player's uuid, 1, 1, 5) is true:
+    send "You already unlocked this encyclopedia slot"</code></pre>
 
 <h3>Java</h3>
-<p><code>encbook.jar</code> 를 프로젝트에 <b>compileOnly</b> 로 추가하고,
-plugin.yml 에 <code>softdepend: [EncBook]</code> 를 넣으세요.</p>
-<pre><code>EncbookAPI api = EncbookProvider.get();
+<p><span class="ko"><code>encbook.jar</code> 를 프로젝트에 <b>compileOnly</b> 로 추가하고,
+plugin.yml 에 <code>softdepend: [EncBook]</code> 를 넣으세요.</span><span
+   class="en">Add <code>encbook.jar</code> to your project as <b>compileOnly</b>,
+and put <code>softdepend: [EncBook]</code> in your plugin.yml.</span></p>
+<pre class="ko"><code>EncbookAPI api = EncbookProvider.get();
 
 <span class="comment">// 숫자 3개로 바로 쓰거나, SlotRef 로 묶어 써도 같은 의미</span>
 boolean done = api.isUnlocked(uuid, 1, 1, 5);
 boolean same = api.isUnlocked(uuid, SlotRef.of(1, 1, 5));</code></pre>
+<pre class="en"><code>EncbookAPI api = EncbookProvider.get();
 
-<h2 id="terms">용어</h2>
-<p class="hint" style="margin-left:0">아래 메소드 설명에서 반복해서 쓰는 표현들입니다.</p>
+<span class="comment">// Use the three numbers directly, or bundle them into a SlotRef — same meaning</span>
+boolean done = api.isUnlocked(uuid, 1, 1, 5);
+boolean same = api.isUnlocked(uuid, SlotRef.of(1, 1, 5));</code></pre>
 
-<table class="terms">
+<h2 id="terms"><span class="ko">용어</span><span class="en">Terminology</span></h2>
+<p class="hint" style="margin-left:0"><span class="ko">아래 메소드 설명에서 반복해서 쓰는 표현들입니다.</span><span
+   class="en">Terms used repeatedly in the method descriptions below.</span></p>
+
+<table class="terms ko">
   <tr><td><code>uuid</code></td><td>대상 플레이어를 식별하는 고유 값입니다. Skript 에서는 <code>player's uuid</code> 로 얻습니다.</td></tr>
   <tr><td><code>카테고리</code></td><td>도감의 카테고리 번호를 의미하며, 위에서 아래 순서대로 <b>1 ~ 5</b>번입니다.
       (기본값 기준 1번 '블럭' · 2번 '광물' · 3번 '작물' · 4번 '물고기' · 5번 '기타')</td></tr>
@@ -262,215 +317,310 @@ boolean same = api.isUnlocked(uuid, SlotRef.of(1, 1, 5));</code></pre>
       왼쪽 위부터 오른쪽 방향으로 <b>1 ~ 30</b>번까지 매겨집니다.</td></tr>
   <tr><td><code>진행률</code></td><td>해금을 마친 비율을 <b>0.0 ~ 100.0</b> 사이의 숫자(%)로 나타냅니다.</td></tr>
 </table>
+<table class="terms en">
+  <tr><td><code>uuid</code></td><td>A unique value identifying the target player. In Skript, get it with <code>player's uuid</code>.</td></tr>
+  <tr><td><code>category</code></td><td>The encyclopedia category number, <b>1 – 5</b> from top to bottom.
+      (With default settings: 1 'Blocks' · 2 'Ores' · 3 'Crops' · 4 'Fish' · 5 'Misc')</td></tr>
+  <tr><td><code>page</code></td><td>The page number within that category, starting from <b>1</b>.
+      The page count is set per category in the config; the default is 5.</td></tr>
+  <tr><td><code>slot</code></td><td>The slot number within that page,
+      numbered <b>1 – 30</b> from the top-left going right.</td></tr>
+  <tr><td><code>progress</code></td><td>The unlocked ratio, as a number (%) between <b>0.0 and 100.0</b>.</td></tr>
+</table>
 
-<div class="note">
+<div class="note ko">
   도감 슬롯 하나는 <b>카테고리 · 페이지 · 슬롯 세 숫자</b>로 지정합니다.
   예를 들어 <code>(1, 2, 5)</code> 는 <b>1번 카테고리의 2페이지 5번 도감 슬롯</b>입니다.
   <br>Java 에서는 세 숫자를 <code>SlotRef.of(1, 2, 5)</code> 한 덩어리로 묶어 쓸 수도 있습니다 (같은 의미).
 </div>
+<div class="note en">
+  A single encyclopedia slot is addressed by <b>three numbers: category · page · slot</b>.
+  For example, <code>(1, 2, 5)</code> is <b>slot 5 on page 2 of category 1</b>.
+  <br>In Java you can also bundle the three numbers into one <code>SlotRef.of(1, 2, 5)</code> (same meaning).
+</div>
 
-<h2 id="query">조회</h2>
-<p class="hint">플레이어의 도감 진행 상황을 확인합니다. 접속 중이든 오프라인이든 동일하게 사용합니다.</p>
+<h2 id="query"><span class="ko">조회</span><span class="en">Queries</span></h2>
+<p class="hint"><span class="ko">플레이어의 도감 진행 상황을 확인합니다. 접속 중이든 오프라인이든 동일하게 사용합니다.</span><span
+   class="en">Check a player's encyclopedia progress. Works the same whether the player is online or offline.</span></p>
 
-<div class="m"><div class="line"><span class="sig">isUnlocked(<span class="p" data-tip="플레이어의 UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)">카테고리</span>, <span class="p" data-tip="카테고리 안의 페이지 번호 (1부터)">페이지</span>, <span class="p" data-tip="페이지 안의 도감 슬롯 번호 (1~30)">슬롯</span>)</span><span class="ret">→ true / false</span></div>
-  <p>플레이어가 해당 도감 슬롯을 해금하였는지 여부를 반환합니다.</p></div>
+<div class="m"><div class="line"><span class="sig">isUnlocked(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)" data-tip-en="Encyclopedia category number (1–5)"><span class="ko">카테고리</span><span class="en">category</span></span>, <span class="p" data-tip="카테고리 안의 페이지 번호 (1부터)" data-tip-en="Page number within the category (from 1)"><span class="ko">페이지</span><span class="en">page</span></span>, <span class="p" data-tip="페이지 안의 도감 슬롯 번호 (1~30)" data-tip-en="Slot number within the page (1–30)"><span class="ko">슬롯</span><span class="en">slot</span></span>)</span><span class="ret">→ true / false</span></div>
+  <p><span class="ko">플레이어가 해당 도감 슬롯을 해금하였는지 여부를 반환합니다.</span><span
+     class="en">Returns whether the player has unlocked that encyclopedia slot.</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">unlockedAt(<span class="p" data-tip="플레이어의 UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)">카테고리</span>, <span class="p" data-tip="카테고리 안의 페이지 번호 (1부터)">페이지</span>, <span class="p" data-tip="페이지 안의 도감 슬롯 번호 (1~30)">슬롯</span>)</span><span class="ret">→ 해금 시각</span></div>
-  <p>플레이어가 해당 도감 슬롯을 해금한 시각을 반환합니다. 아직 해금하지 않았다면 빈 값을 반환합니다.</p></div>
+<div class="m"><div class="line"><span class="sig">unlockedAt(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)" data-tip-en="Encyclopedia category number (1–5)"><span class="ko">카테고리</span><span class="en">category</span></span>, <span class="p" data-tip="카테고리 안의 페이지 번호 (1부터)" data-tip-en="Page number within the category (from 1)"><span class="ko">페이지</span><span class="en">page</span></span>, <span class="p" data-tip="페이지 안의 도감 슬롯 번호 (1~30)" data-tip-en="Slot number within the page (1–30)"><span class="ko">슬롯</span><span class="en">slot</span></span>)</span><span class="ret">→ <span class="ko">해금 시각</span><span class="en">unlock time</span></span></div>
+  <p><span class="ko">플레이어가 해당 도감 슬롯을 해금한 시각을 반환합니다. 아직 해금하지 않았다면 빈 값을 반환합니다.</span><span
+     class="en">Returns when the player unlocked that slot. Returns empty if it is not unlocked yet.</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">unlockedCount(<span class="p" data-tip="플레이어의 UUID">uuid</span>)</span><span class="ret">→ 숫자</span></div>
-  <p>플레이어가 지금까지 해금한 도감 슬롯의 총 개수를 반환합니다.</p></div>
+<div class="m"><div class="line"><span class="sig">unlockedCount(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>)</span><span class="ret">→ <span class="ko">숫자</span><span class="en">number</span></span></div>
+  <p><span class="ko">플레이어가 지금까지 해금한 도감 슬롯의 총 개수를 반환합니다.</span><span
+     class="en">Returns the total number of encyclopedia slots the player has unlocked so far.</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">unlockedCount(<span class="p" data-tip="플레이어의 UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)">카테고리</span>)</span><span class="ret">→ 숫자</span></div>
-  <p>플레이어가 해당 카테고리에서 해금한 도감 슬롯 개수를 반환합니다.</p></div>
+<div class="m"><div class="line"><span class="sig">unlockedCount(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)" data-tip-en="Encyclopedia category number (1–5)"><span class="ko">카테고리</span><span class="en">category</span></span>)</span><span class="ret">→ <span class="ko">숫자</span><span class="en">number</span></span></div>
+  <p><span class="ko">플레이어가 해당 카테고리에서 해금한 도감 슬롯 개수를 반환합니다.</span><span
+     class="en">Returns the number of slots the player has unlocked in that category.</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">totalProgress(<span class="p" data-tip="플레이어의 UUID">uuid</span>)</span><span class="ret">→ 진행률</span></div>
-  <p>플레이어의 도감 전체 진행률을 0.0 ~ 100.0 사이의 값으로 반환합니다.</p></div>
+<div class="m"><div class="line"><span class="sig">totalProgress(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>)</span><span class="ret">→ <span class="ko">진행률</span><span class="en">progress</span></span></div>
+  <p><span class="ko">플레이어의 도감 전체 진행률을 0.0 ~ 100.0 사이의 값으로 반환합니다.</span><span
+     class="en">Returns the player's overall encyclopedia progress as a value between 0.0 and 100.0.</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">categoryProgress(<span class="p" data-tip="플레이어의 UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)">카테고리</span>)</span><span class="ret">→ 진행률</span></div>
-  <p>플레이어의 해당 카테고리 진행률을 0.0 ~ 100.0 사이의 값으로 반환합니다.</p></div>
+<div class="m"><div class="line"><span class="sig">categoryProgress(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)" data-tip-en="Encyclopedia category number (1–5)"><span class="ko">카테고리</span><span class="en">category</span></span>)</span><span class="ret">→ <span class="ko">진행률</span><span class="en">progress</span></span></div>
+  <p><span class="ko">플레이어의 해당 카테고리 진행률을 0.0 ~ 100.0 사이의 값으로 반환합니다.</span><span
+     class="en">Returns the player's progress in that category as a value between 0.0 and 100.0.</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">isCategoryComplete(<span class="p" data-tip="플레이어의 UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)">카테고리</span>)</span><span class="ret">→ true / false</span></div>
-  <p>플레이어가 해당 카테고리를 100% 완성했는지 여부를 반환합니다.</p></div>
+<div class="m"><div class="line"><span class="sig">isCategoryComplete(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)" data-tip-en="Encyclopedia category number (1–5)"><span class="ko">카테고리</span><span class="en">category</span></span>)</span><span class="ret">→ true / false</span></div>
+  <p><span class="ko">플레이어가 해당 카테고리를 100% 완성했는지 여부를 반환합니다.</span><span
+     class="en">Returns whether the player has completed that category 100%.</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">hasClaimedCategoryReward(<span class="p" data-tip="플레이어의 UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)">카테고리</span>)</span><span class="ret">→ true / false</span></div>
-  <p>플레이어가 해당 카테고리의 완료 보상을 수령하였는지 여부를 반환합니다.</p></div>
+<div class="m"><div class="line"><span class="sig">hasClaimedCategoryReward(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)" data-tip-en="Encyclopedia category number (1–5)"><span class="ko">카테고리</span><span class="en">category</span></span>)</span><span class="ret">→ true / false</span></div>
+  <p><span class="ko">플레이어가 해당 카테고리의 완료 보상을 수령하였는지 여부를 반환합니다.</span><span
+     class="en">Returns whether the player has claimed that category's completion reward.</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">hasClaimedProgressReward(<span class="p" data-tip="플레이어의 UUID">uuid</span>, <span class="p" data-tip="진척도 단계 (1~9)">단계</span>)</span><span class="ret">→ true / false</span></div>
-  <p>플레이어가 해당 진척도 단계의 보상을 수령하였는지 여부를 반환합니다.</p></div>
+<div class="m"><div class="line"><span class="sig">hasClaimedProgressReward(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>, <span class="p" data-tip="진척도 단계 (1~9)" data-tip-en="Progress milestone level (1–9)"><span class="ko">단계</span><span class="en">level</span></span>)</span><span class="ret">→ true / false</span></div>
+  <p><span class="ko">플레이어가 해당 진척도 단계의 보상을 수령하였는지 여부를 반환합니다.</span><span
+     class="en">Returns whether the player has claimed the reward for that progress milestone level.</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">claimableProgressRewards(<span class="p" data-tip="플레이어의 UUID">uuid</span>)</span><span class="ret">→ 단계 목록</span></div>
-  <p>플레이어가 달성했지만 아직 수령하지 않은 진척도 보상 단계 목록을 반환합니다.</p></div>
+<div class="m"><div class="line"><span class="sig">claimableProgressRewards(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>)</span><span class="ret">→ <span class="ko">단계 목록</span><span class="en">level list</span></span></div>
+  <p><span class="ko">플레이어가 달성했지만 아직 수령하지 않은 진척도 보상 단계 목록을 반환합니다.</span><span
+     class="en">Returns the list of milestone levels the player has reached but not yet claimed.</span></p></div>
 
-<pre><code><span class="comment"># 예시 : 진행률 확인 명령어</span>
+<pre class="ko"><code><span class="comment"># 예시 : 진행률 확인 명령어</span>
 command /내도감:
     trigger:
         set {_api} to EncbookProvider.get()
         send "전체 진행률: %{_api}.totalProgress(player's uuid)%%%"
         send "카테고리 1: %{_api}.categoryProgress(player's uuid, 1)%%%"</code></pre>
+<pre class="en"><code><span class="comment"># Example: a progress-check command</span>
+command /mybook:
+    trigger:
+        set {_api} to EncbookProvider.get()
+        send "Total progress: %{_api}.totalProgress(player's uuid)%%%"
+        send "Category 1: %{_api}.categoryProgress(player's uuid, 1)%%%"</code></pre>
 
-<h2 id="book">도감 전체 조회</h2>
-<p class="hint">플레이어의 도감 데이터를 한 번에 받아 여러 값을 연속으로 확인할 때 사용합니다.</p>
+<h2 id="book"><span class="ko">도감 전체 조회</span><span class="en">Loading the Whole Book</span></h2>
+<p class="hint"><span class="ko">플레이어의 도감 데이터를 한 번에 받아 여러 값을 연속으로 확인할 때 사용합니다.</span><span
+   class="en">Load a player's encyclopedia data once, then check many values in a row.</span></p>
 
-<div class="m"><div class="line"><span class="sig">loadBook(<span class="p" data-tip="플레이어의 UUID">uuid</span>)</span><span class="ret">→ PlayerBook (비동기)</span></div>
-  <p>플레이어의 도감 데이터를 <b>PlayerBook</b> 객체 하나로 반환합니다.
-     이 객체에서 해금 여부·진행률·보상 수령 여부를 모두 확인할 수 있습니다.</p>
-  <p class="note">도감 기록이 전혀 없는 플레이어는 빈 값을 반환합니다.</p></div>
+<div class="m"><div class="line"><span class="sig">loadBook(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>)</span><span class="ret">→ PlayerBook <span class="ko">(비동기)</span><span class="en">(async)</span></span></div>
+  <p><span class="ko">플레이어의 도감 데이터를 <b>PlayerBook</b> 객체 하나로 반환합니다.
+     이 객체에서 해금 여부·진행률·보상 수령 여부를 모두 확인할 수 있습니다.</span><span
+     class="en">Returns the player's encyclopedia data as a single <b>PlayerBook</b> object.
+     From it you can read unlock states, progress, and reward-claim states.</span></p>
+  <p class="note"><span class="ko">도감 기록이 전혀 없는 플레이어는 빈 값을 반환합니다.</span><span
+     class="en">Returns empty for players with no encyclopedia records at all.</span></p></div>
 
-<div class="note">
+<div class="note ko">
   <b>언제 사용하나요?</b><br>
   위 조회 메소드는 호출할 때마다 데이터를 한 번씩 읽습니다. 한 플레이어의 값을 여러 개 확인하거나
   많은 인원을 반복문으로 처리할 때는, 이 메소드로 데이터를 한 번만 읽어 두고 그 객체에서 값을 꺼내는 편이 빠릅니다.
   <br>확인할 값이 한두 개뿐이라면 위 조회 메소드를 그대로 쓰면 됩니다.
 </div>
+<div class="note en">
+  <b>When should I use this?</b><br>
+  Each query method above reads the data once per call. When checking several values for one player,
+  or looping over many players, it is faster to read the data once with this method and pull values from the object.
+  <br>If you only need one or two values, just use the query methods above.
+</div>
 
-<pre><code><span class="comment">// Java : 도감 데이터를 한 번 받아 여러 값을 확인</span>
+<pre class="ko"><code><span class="comment">// Java : 도감 데이터를 한 번 받아 여러 값을 확인</span>
 api.loadBook(uuid).thenAccept(book -> book.ifPresent(b -> {
     log.info("전체 진행률 " + b.totalProgress() + "%");
     log.info("해금 슬롯 " + b.unlockedCount() + "개");
     log.info("1-1-5 해금 여부 " + b.isUnlocked(1, 1, 5));
 }));</code></pre>
+<pre class="en"><code><span class="comment">// Java: load the book once and check several values</span>
+api.loadBook(uuid).thenAccept(book -> book.ifPresent(b -> {
+    log.info("total progress " + b.totalProgress() + "%");
+    log.info("unlocked slots " + b.unlockedCount());
+    log.info("1-1-5 unlocked " + b.isUnlocked(1, 1, 5));
+}));</code></pre>
 
-<h2 id="catalog">카탈로그</h2>
-<p class="hint">관리자가 <code>/도감 설정</code> 에서 각 도감 슬롯에 지정해 둔 수집 목표 아이템 목록을 조회합니다.
-   플레이어의 해금 현황은 위의 조회 섹션에서 확인합니다.</p>
+<h2 id="catalog"><span class="ko">카탈로그</span><span class="en">Catalog</span></h2>
+<p class="hint"><span class="ko">관리자가 <code>/도감 설정</code> 에서 각 도감 슬롯에 지정해 둔 수집 목표 아이템 목록을 조회합니다.
+   플레이어의 해금 현황은 위의 조회 섹션에서 확인합니다.</span><span
+   class="en">Look up the collection-target items that admins assigned to each encyclopedia slot in <code>/도감 설정</code> (settings screen).
+   Per-player unlock states are covered in the Queries section above.</span></p>
 
-<div class="m"><div class="line"><span class="sig">slotAt(<span class="p" data-tip="도감 카테고리 번호 (1~5)">카테고리</span>, <span class="p" data-tip="카테고리 안의 페이지 번호 (1부터)">페이지</span>, <span class="p" data-tip="페이지 안의 도감 슬롯 번호 (1~30)">슬롯</span>)</span><span class="ret">→ CatalogSlot</span></div>
-  <p>관리자가 해당 도감 슬롯에 지정한 목표 아이템을 반환합니다.<br>
-     목표 아이템이 지정되지 않은 빈 슬롯이면 빈 값을 반환합니다.</p>
-  <p class="note"><code>.item()</code> 으로 목표 아이템을, <code>.requiredAmount()</code> 로 해금에 필요한 개수를 꺼냅니다</p></div>
+<div class="m"><div class="line"><span class="sig">slotAt(<span class="p" data-tip="도감 카테고리 번호 (1~5)" data-tip-en="Encyclopedia category number (1–5)"><span class="ko">카테고리</span><span class="en">category</span></span>, <span class="p" data-tip="카테고리 안의 페이지 번호 (1부터)" data-tip-en="Page number within the category (from 1)"><span class="ko">페이지</span><span class="en">page</span></span>, <span class="p" data-tip="페이지 안의 도감 슬롯 번호 (1~30)" data-tip-en="Slot number within the page (1–30)"><span class="ko">슬롯</span><span class="en">slot</span></span>)</span><span class="ret">→ CatalogSlot</span></div>
+  <p><span class="ko">관리자가 해당 도감 슬롯에 지정한 목표 아이템을 반환합니다.<br>
+     목표 아이템이 지정되지 않은 빈 슬롯이면 빈 값을 반환합니다.</span><span
+     class="en">Returns the target item an admin assigned to that encyclopedia slot.<br>
+     Returns empty for blank slots with no target item assigned.</span></p>
+  <p class="note"><span class="ko"><code>.item()</code> 으로 목표 아이템을, <code>.requiredAmount()</code> 로 해금에 필요한 개수를 꺼냅니다</span><span
+     class="en">Use <code>.item()</code> for the target item and <code>.requiredAmount()</code> for the amount required to unlock</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">findSlot(<span class="p" data-tip="도감에 속하는지 확인할 아이템">아이템</span>)</span><span class="ret">→ SlotRef</span></div>
-  <p>해당 아이템이 어느 도감 슬롯에 목표로 지정되어 있는지 반환합니다.<br>
-     목표로 지정된 아이템이 아니면 빈 값을 반환합니다.</p>
-  <p class="note">반환된 값에서 <code>.category()</code> · <code>.page()</code> · <code>.slot()</code> 으로 각 번호를 꺼냅니다</p></div>
+<div class="m"><div class="line"><span class="sig">findSlot(<span class="p" data-tip="도감에 속하는지 확인할 아이템" data-tip-en="The item to look up in the encyclopedia"><span class="ko">아이템</span><span class="en">item</span></span>)</span><span class="ret">→ SlotRef</span></div>
+  <p><span class="ko">해당 아이템이 어느 도감 슬롯에 목표로 지정되어 있는지 반환합니다.<br>
+     목표로 지정된 아이템이 아니면 빈 값을 반환합니다.</span><span
+     class="en">Returns which encyclopedia slot has that item as its target.<br>
+     Returns empty if the item is not the target of any slot.</span></p>
+  <p class="note"><span class="ko">반환된 값에서 <code>.category()</code> · <code>.page()</code> · <code>.slot()</code> 으로 각 번호를 꺼냅니다</span><span
+     class="en">From the returned value, read each number with <code>.category()</code> · <code>.page()</code> · <code>.slot()</code></span></p></div>
 
 <div class="m">
-  <div class="line"><span class="sig">totalSlots()</span><span class="ret">→ 숫자</span></div>
-  <p>지정된 목표 아이템의 총 개수를 반환합니다. (설정된 슬롯 하나당 1개로 계산)</p>
-  <div class="line" style="margin-top:12px"><span class="sig">totalSlots(<span class="p" data-tip="도감 카테고리 번호 (1~5)">카테고리</span>)</span><span class="ret">→ 숫자</span></div>
-  <p>해당 카테고리에서 목표 아이템이 지정된 도감 슬롯의 개수를 반환합니다.</p>
+  <div class="line"><span class="sig">totalSlots()</span><span class="ret">→ <span class="ko">숫자</span><span class="en">number</span></span></div>
+  <p><span class="ko">지정된 목표 아이템의 총 개수를 반환합니다. (설정된 슬롯 하나당 1개로 계산)</span><span
+     class="en">Returns the total number of assigned target items. (Each configured slot counts as 1)</span></p>
+  <div class="line" style="margin-top:12px"><span class="sig">totalSlots(<span class="p" data-tip="도감 카테고리 번호 (1~5)" data-tip-en="Encyclopedia category number (1–5)"><span class="ko">카테고리</span><span class="en">category</span></span>)</span><span class="ret">→ <span class="ko">숫자</span><span class="en">number</span></span></div>
+  <p><span class="ko">해당 카테고리에서 목표 아이템이 지정된 도감 슬롯의 개수를 반환합니다.</span><span
+     class="en">Returns the number of slots with a target item assigned in that category.</span></p>
 </div>
 
-<h2 id="action">조작</h2>
-<p class="hint">도감 슬롯을 해금·잠금하거나 도감 화면을 엽니다. 해금 시 이벤트가 발생하며 취소될 수 있습니다.</p>
+<h2 id="action"><span class="ko">조작</span><span class="en">Actions</span></h2>
+<p class="hint"><span class="ko">도감 슬롯을 해금·잠금하거나 도감 화면을 엽니다. 해금 시 이벤트가 발생하며 취소될 수 있습니다.</span><span
+   class="en">Unlock or lock encyclopedia slots, or open the encyclopedia screen. Unlocking fires an event and can be cancelled.</span></p>
 
-<div class="m"><div class="line"><span class="sig">unlock(<span class="p" data-tip="플레이어의 UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)">카테고리</span>, <span class="p" data-tip="카테고리 안의 페이지 번호 (1부터)">페이지</span>, <span class="p" data-tip="페이지 안의 도감 슬롯 번호 (1~30)">슬롯</span>)</span><span class="ret">→ 결과</span></div>
-  <p>지정한 도감 슬롯을 조용히 해금하고 처리 결과를 반환합니다. 보상·알림·효과음 없이 처리되며, 데이터 보정용으로 사용합니다.</p>
-  <p class="note">대상이 오프라인이면 비동기로 처리를 시작하고 PENDING 을 반환합니다</p></div>
+<div class="m"><div class="line"><span class="sig">unlock(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)" data-tip-en="Encyclopedia category number (1–5)"><span class="ko">카테고리</span><span class="en">category</span></span>, <span class="p" data-tip="카테고리 안의 페이지 번호 (1부터)" data-tip-en="Page number within the category (from 1)"><span class="ko">페이지</span><span class="en">page</span></span>, <span class="p" data-tip="페이지 안의 도감 슬롯 번호 (1~30)" data-tip-en="Slot number within the page (1–30)"><span class="ko">슬롯</span><span class="en">slot</span></span>)</span><span class="ret">→ <span class="ko">결과</span><span class="en">result</span></span></div>
+  <p><span class="ko">지정한 도감 슬롯을 조용히 해금하고 처리 결과를 반환합니다. 보상·알림·효과음 없이 처리되며, 데이터 보정용으로 사용합니다.</span><span
+     class="en">Silently unlocks the given slot and returns the result. No rewards, notifications, or sounds — intended for data fixes.</span></p>
+  <p class="note"><span class="ko">대상이 오프라인이면 비동기로 처리를 시작하고 PENDING 을 반환합니다</span><span
+     class="en">If the target is offline, processing starts asynchronously and PENDING is returned</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">unlockWithReward(<span class="p" data-tip="플레이어의 UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)">카테고리</span>, <span class="p" data-tip="카테고리 안의 페이지 번호 (1부터)">페이지</span>, <span class="p" data-tip="페이지 안의 도감 슬롯 번호 (1~30)">슬롯</span>)</span><span class="ret">→ 결과</span></div>
-  <p>지정한 도감 슬롯을 플레이어가 직접 해금한 것처럼 처리하고 결과를 반환합니다.
-     해금 보상 지급과 알림이 함께 이루어지며, 퀘스트·이벤트 연동에 적합합니다. 아이템은 소모하지 않습니다.</p></div>
+<div class="m"><div class="line"><span class="sig">unlockWithReward(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)" data-tip-en="Encyclopedia category number (1–5)"><span class="ko">카테고리</span><span class="en">category</span></span>, <span class="p" data-tip="카테고리 안의 페이지 번호 (1부터)" data-tip-en="Page number within the category (from 1)"><span class="ko">페이지</span><span class="en">page</span></span>, <span class="p" data-tip="페이지 안의 도감 슬롯 번호 (1~30)" data-tip-en="Slot number within the page (1–30)"><span class="ko">슬롯</span><span class="en">slot</span></span>)</span><span class="ret">→ <span class="ko">결과</span><span class="en">result</span></span></div>
+  <p><span class="ko">지정한 도감 슬롯을 플레이어가 직접 해금한 것처럼 처리하고 결과를 반환합니다.
+     해금 보상 지급과 알림이 함께 이루어지며, 퀘스트·이벤트 연동에 적합합니다. 아이템은 소모하지 않습니다.</span><span
+     class="en">Unlocks the given slot as if the player did it themselves, and returns the result.
+     Unlock rewards and notifications are included — a good fit for quest/event integrations. No items are consumed.</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">lock(<span class="p" data-tip="플레이어의 UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)">카테고리</span>, <span class="p" data-tip="카테고리 안의 페이지 번호 (1부터)">페이지</span>, <span class="p" data-tip="페이지 안의 도감 슬롯 번호 (1~30)">슬롯</span>)</span><span class="ret">→ 결과</span></div>
-  <p>지정한 도감 슬롯의 해금을 취소하고 결과를 반환합니다. 이미 지급된 보상은 회수하지 않습니다.</p></div>
+<div class="m"><div class="line"><span class="sig">lock(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>, <span class="p" data-tip="도감 카테고리 번호 (1~5)" data-tip-en="Encyclopedia category number (1–5)"><span class="ko">카테고리</span><span class="en">category</span></span>, <span class="p" data-tip="카테고리 안의 페이지 번호 (1부터)" data-tip-en="Page number within the category (from 1)"><span class="ko">페이지</span><span class="en">page</span></span>, <span class="p" data-tip="페이지 안의 도감 슬롯 번호 (1~30)" data-tip-en="Slot number within the page (1–30)"><span class="ko">슬롯</span><span class="en">slot</span></span>)</span><span class="ret">→ <span class="ko">결과</span><span class="en">result</span></span></div>
+  <p><span class="ko">지정한 도감 슬롯의 해금을 취소하고 결과를 반환합니다. 이미 지급된 보상은 회수하지 않습니다.</span><span
+     class="en">Re-locks the given slot and returns the result. Rewards already granted are not taken back.</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">unlockAsync(<span class="p" data-tip="플레이어의 UUID">uuid</span>, <span class="p" data-tip="도감 슬롯 좌표. SlotRef.of(카테고리, 페이지, 슬롯)">슬롯</span>, <span class="p" data-tip="true 면 해금 보상까지 지급">보상여부</span>)</span><span class="ret">→ 결과 (비동기)</span></div>
-  <p>지정한 도감 슬롯을 해금하고, 확정된 처리 결과를 비동기로 반환합니다.</p>
-  <p class="note"><b>언제 사용하나요?</b> 위 <code>unlock</code> 은 오프라인 대상에게 <code>PENDING</code> 을 돌려주므로
+<div class="m"><div class="line"><span class="sig">unlockAsync(<span class="p" data-tip="플레이어의 UUID" data-tip-en="The player's UUID">uuid</span>, <span class="p" data-tip="도감 슬롯 좌표. SlotRef.of(카테고리, 페이지, 슬롯)" data-tip-en="Slot coordinates: SlotRef.of(category, page, slot)"><span class="ko">슬롯</span><span class="en">slot</span></span>, <span class="p" data-tip="true 면 해금 보상까지 지급" data-tip-en="If true, unlock rewards are granted too"><span class="ko">보상여부</span><span class="en">withReward</span></span>)</span><span class="ret">→ <span class="ko">결과 (비동기)</span><span class="en">result (async)</span></span></div>
+  <p><span class="ko">지정한 도감 슬롯을 해금하고, 확정된 처리 결과를 비동기로 반환합니다.</span><span
+     class="en">Unlocks the given slot and returns the confirmed result asynchronously.</span></p>
+  <p class="note"><span class="ko"><b>언제 사용하나요?</b> 위 <code>unlock</code> 은 오프라인 대상에게 <code>PENDING</code> 을 돌려주므로
      실제로 해금됐는지, 이미 해금 상태였는지 알 수 없습니다. 처리 결과에 따라 다음 동작이 달라질 때
-     (예: 중복 지급 방지, 성공 여부 안내·기록) 이 메소드를 사용하면 확정된 결과를 받을 수 있습니다.</p></div>
+     (예: 중복 지급 방지, 성공 여부 안내·기록) 이 메소드를 사용하면 확정된 결과를 받을 수 있습니다.</span><span
+     class="en"><b>When should I use this?</b> <code>unlock</code> above returns <code>PENDING</code> for offline targets,
+     so you cannot tell whether the slot was actually unlocked or already unlocked. When your next step depends on the outcome
+     (e.g. preventing duplicate rewards, reporting or recording success), use this method to get a confirmed result.</span></p></div>
 
-<div class="m"><div class="line"><span class="sig">openBook(<span class="p" data-tip="화면을 볼 플레이어 (접속 중)">플레이어</span>, <span class="p" data-tip="누구의 도감을 볼지. 그 주인의 UUID">uuid</span>, <span class="p" data-tip="ViewMode.NORMAL(일반) 또는 ViewMode.ADMIN(관리)">모드</span>, <span class="p" data-tip="열 카테고리 번호 (1~5)">카테고리</span>, <span class="p" data-tip="열 페이지 번호 (1부터)">페이지</span>)</span></div>
-  <p>지정한 플레이어에게 해당 도감 화면을 열어줍니다.</p></div>
+<div class="m"><div class="line"><span class="sig">openBook(<span class="p" data-tip="화면을 볼 플레이어 (접속 중)" data-tip-en="The player who will see the screen (must be online)"><span class="ko">플레이어</span><span class="en">player</span></span>, <span class="p" data-tip="누구의 도감을 볼지. 그 주인의 UUID" data-tip-en="Whose encyclopedia to view — the owner's UUID">uuid</span>, <span class="p" data-tip="ViewMode.NORMAL(일반) 또는 ViewMode.ADMIN(관리)" data-tip-en="ViewMode.NORMAL or ViewMode.ADMIN"><span class="ko">모드</span><span class="en">mode</span></span>, <span class="p" data-tip="열 카테고리 번호 (1~5)" data-tip-en="Category number to open (1–5)"><span class="ko">카테고리</span><span class="en">category</span></span>, <span class="p" data-tip="열 페이지 번호 (1부터)" data-tip-en="Page number to open (from 1)"><span class="ko">페이지</span><span class="en">page</span></span>)</span></div>
+  <p><span class="ko">지정한 플레이어에게 해당 도감 화면을 열어줍니다.</span><span
+     class="en">Opens the encyclopedia screen for the given player.</span></p></div>
 
 <p style="font-size:13px; color:var(--muted)">
-반환되는 결과값 <code>UnlockResult</code> 의 종류 : SUCCESS(처리 완료) · ALREADY_UNLOCKED(이미 해금됨) ·
+<span class="ko">반환되는 결과값 <code>UnlockResult</code> 의 종류 : SUCCESS(처리 완료) · ALREADY_UNLOCKED(이미 해금됨) ·
 EMPTY_SLOT(카탈로그에 목표가 없는 빈 슬롯) · PLAYER_NOT_FOUND(대상 데이터 없음) ·
-CANCELLED(이벤트에서 취소됨) · PENDING(오프라인 대상이라 비동기로 처리 시작)
+CANCELLED(이벤트에서 취소됨) · PENDING(오프라인 대상이라 비동기로 처리 시작)</span><span
+class="en">Possible <code>UnlockResult</code> values: SUCCESS (done) · ALREADY_UNLOCKED ·
+EMPTY_SLOT (no target in the catalog) · PLAYER_NOT_FOUND (no data for the target) ·
+CANCELLED (cancelled by an event) · PENDING (offline target — async processing started)</span>
 </p>
 
-<pre><code><span class="comment"># 예시 : 퀘스트 완료 시 특정 도감 슬롯을 보상과 함께 해금</span>
+<pre class="ko"><code><span class="comment"># 예시 : 퀘스트 완료 시 특정 도감 슬롯을 보상과 함께 해금</span>
+{_api}.unlockWithReward(player's uuid, 1, 1, 5)</code></pre>
+<pre class="en"><code><span class="comment"># Example: unlock a specific slot with rewards when a quest completes</span>
 {_api}.unlockWithReward(player's uuid, 1, 1, 5)</code></pre>
 
-<h2 id="events">이벤트</h2>
-<p class="hint">패키지 <code>kr.bibi.encbook.api.event</code> 안에 있으며, import 한 클래스 이름을 그대로 <code>on ...:</code> 에 씁니다.
-   아래 메소드에 마우스를 올리면 무엇을 돌려주는지 볼 수 있습니다.</p>
+<h2 id="events"><span class="ko">이벤트</span><span class="en">Events</span></h2>
+<p class="hint"><span class="ko">패키지 <code>kr.bibi.encbook.api.event</code> 안에 있으며, import 한 클래스 이름을 그대로 <code>on ...:</code> 에 씁니다.
+   아래 메소드에 마우스를 올리면 무엇을 돌려주는지 볼 수 있습니다.</span><span
+   class="en">These live in the <code>kr.bibi.encbook.api.event</code> package; use the imported class name directly in <code>on ...:</code>.
+   Hover over the methods below to see what each one returns.</span></p>
 
 <div class="ev">
-  <div class="line"><span class="name">EncbookUnlockEvent</span><span class="cancel-o">취소 가능</span></div>
-  <p><b>도감 슬롯 해금</b><br>도감 슬롯이 해금되기 직전에 발생합니다. 직접 등록·깃펜·관리자·API 등
-     모든 경로에서 공통으로 발생하며, 취소하면 해금되지 않고 아이템·깃펜도 소모되지 않습니다.</p>
-  <p class="get"><span class="p" data-tip="해금 대상 플레이어. 오프라인이면 null">getPlayer()</span>¹ ·
-     <span class="p" data-tip="해금 대상 플레이어의 UUID">getPlayerId()</span> ·
-     <span class="p" data-tip="해금되는 도감 슬롯의 카테고리 번호 (1~5)">getCategory()</span> ·
-     <span class="p" data-tip="해금되는 도감 슬롯의 페이지 번호">getPage()</span> ·
-     <span class="p" data-tip="해금되는 슬롯 번호 (1~30)">getSlot()</span> ·
-     <span class="p" data-tip="카테고리·페이지·슬롯을 묶은 좌표 객체">getSlotRef()</span> ·
-     <span class="p" data-tip="해금 경로 (PLAYER_REGISTER · FEATHER · ADMIN · API)">getCause()</span>²</p>
+  <div class="line"><span class="name">EncbookUnlockEvent</span><span class="cancel-o"><span class="ko">취소 가능</span><span class="en">Cancellable</span></span></div>
+  <p><b><span class="ko">도감 슬롯 해금</span><span class="en">Slot unlock</span></b><br><span class="ko">도감 슬롯이 해금되기 직전에 발생합니다. 직접 등록·깃펜·관리자·API 등
+     모든 경로에서 공통으로 발생하며, 취소하면 해금되지 않고 아이템·깃펜도 소모되지 않습니다.</span><span
+     class="en">Fires just before an encyclopedia slot is unlocked. Fires on every path — direct registration,
+     quill, admin, API — and cancelling prevents the unlock without consuming any items or quills.</span></p>
+  <p class="get"><span class="p" data-tip="해금 대상 플레이어. 오프라인이면 null" data-tip-en="The player being unlocked for; null if offline">getPlayer()</span>¹ ·
+     <span class="p" data-tip="해금 대상 플레이어의 UUID" data-tip-en="UUID of the player being unlocked for">getPlayerId()</span> ·
+     <span class="p" data-tip="해금되는 도감 슬롯의 카테고리 번호 (1~5)" data-tip-en="Category number of the slot being unlocked (1–5)">getCategory()</span> ·
+     <span class="p" data-tip="해금되는 도감 슬롯의 페이지 번호" data-tip-en="Page number of the slot being unlocked">getPage()</span> ·
+     <span class="p" data-tip="해금되는 슬롯 번호 (1~30)" data-tip-en="Slot number being unlocked (1–30)">getSlot()</span> ·
+     <span class="p" data-tip="카테고리·페이지·슬롯을 묶은 좌표 객체" data-tip-en="Coordinate object bundling category · page · slot">getSlotRef()</span> ·
+     <span class="p" data-tip="해금 경로 (PLAYER_REGISTER · FEATHER · ADMIN · API)" data-tip-en="Unlock path (PLAYER_REGISTER · FEATHER · ADMIN · API)">getCause()</span>²</p>
 </div>
 
 <div class="ev">
-  <div class="line"><span class="name">EncbookFeatherUseEvent</span><span class="cancel-o">취소 가능</span></div>
-  <p><b>비비의 깃펜 사용</b><br>잠긴 도감 슬롯에 깃펜을 사용하는 순간 발생합니다.
+  <div class="line"><span class="name">EncbookFeatherUseEvent</span><span class="cancel-o"><span class="ko">취소 가능</span><span class="en">Cancellable</span></span></div>
+  <p><b><span class="ko">비비의 깃펜 사용</span><span class="en">BIBI's Quill use</span></b><br><span class="ko">잠긴 도감 슬롯에 깃펜을 사용하는 순간 발생합니다.
      취소하면 깃펜이 소모되지 않고 해금도 이루어지지 않습니다.
      취소하지 않으면 이어서 EncbookUnlockEvent(FEATHER) 가 발생합니다.
      config 에서 <code>비비의 깃펜 사용 가능 여부</code> 를 false 로 설정한 카테고리는 깃펜 사용 자체가 거부되므로
-     이 이벤트도 발생하지 않습니다.</p>
-  <p class="get"><span class="p" data-tip="깃펜을 사용한 플레이어">getPlayer()</span> ·
-     <span class="p" data-tip="사용 대상 슬롯의 카테고리 번호 (1~5)">getCategory()</span> ·
-     <span class="p" data-tip="사용 대상 슬롯의 페이지 번호">getPage()</span> ·
-     <span class="p" data-tip="사용 대상 슬롯 번호 (1~30)">getSlot()</span> ·
-     <span class="p" data-tip="카테고리·페이지·슬롯을 묶은 좌표 객체">getSlotRef()</span></p>
+     이 이벤트도 발생하지 않습니다.</span><span
+     class="en">Fires the moment a quill is used on a locked slot.
+     Cancelling consumes no quill and performs no unlock.
+     If not cancelled, EncbookUnlockEvent(FEATHER) fires next.
+     In categories where the config option <code>비비의 깃펜 사용 가능 여부</code> (quill allowed) is set to false,
+     quill use itself is rejected, so this event does not fire either.</span></p>
+  <p class="get"><span class="p" data-tip="깃펜을 사용한 플레이어" data-tip-en="The player who used the quill">getPlayer()</span> ·
+     <span class="p" data-tip="사용 대상 슬롯의 카테고리 번호 (1~5)" data-tip-en="Category number of the targeted slot (1–5)">getCategory()</span> ·
+     <span class="p" data-tip="사용 대상 슬롯의 페이지 번호" data-tip-en="Page number of the targeted slot">getPage()</span> ·
+     <span class="p" data-tip="사용 대상 슬롯 번호 (1~30)" data-tip-en="Targeted slot number (1–30)">getSlot()</span> ·
+     <span class="p" data-tip="카테고리·페이지·슬롯을 묶은 좌표 객체" data-tip-en="Coordinate object bundling category · page · slot">getSlotRef()</span></p>
 </div>
 
 <div class="ev">
-  <div class="line"><span class="name">EncbookCategoryCompleteEvent</span><span class="cancel-x">취소 불가</span></div>
-  <p><b>카테고리 완성</b><br>카테고리 진행도가 100% 에 도달한 순간 발생합니다.
-     이미 확정된 해금의 결과이므로 취소할 수 없습니다. 막으려면 EncbookUnlockEvent 를 취소하세요.</p>
-  <p class="get"><span class="p" data-tip="완성한 플레이어. 오프라인이면 null">getPlayer()</span>¹ ·
-     <span class="p" data-tip="완성한 플레이어의 UUID">getPlayerId()</span> ·
-     <span class="p" data-tip="완성된 카테고리 번호 (1~5)">getCategory()</span></p>
+  <div class="line"><span class="name">EncbookCategoryCompleteEvent</span><span class="cancel-x"><span class="ko">취소 불가</span><span class="en">Not cancellable</span></span></div>
+  <p><b><span class="ko">카테고리 완성</span><span class="en">Category complete</span></b><br><span class="ko">카테고리 진행도가 100% 에 도달한 순간 발생합니다.
+     이미 확정된 해금의 결과이므로 취소할 수 없습니다. 막으려면 EncbookUnlockEvent 를 취소하세요.</span><span
+     class="en">Fires the moment a category's progress reaches 100%.
+     It is the result of an already-confirmed unlock, so it cannot be cancelled. To prevent it, cancel EncbookUnlockEvent instead.</span></p>
+  <p class="get"><span class="p" data-tip="완성한 플레이어. 오프라인이면 null" data-tip-en="The player who completed it; null if offline">getPlayer()</span>¹ ·
+     <span class="p" data-tip="완성한 플레이어의 UUID" data-tip-en="UUID of the player who completed it">getPlayerId()</span> ·
+     <span class="p" data-tip="완성된 카테고리 번호 (1~5)" data-tip-en="The completed category number (1–5)">getCategory()</span></p>
 </div>
 
 <div class="ev">
-  <div class="line"><span class="name">EncbookCategoryRewardClaimEvent</span><span class="cancel-o">취소 가능</span></div>
-  <p><b>카테고리 완료 보상 수령</b><br>카테고리 완료 보상을 지급하기 직전에 발생합니다.
-     취소하면 지급되지 않으며, <code>getRewards()</code> 로 받은 목록을 수정하면 그 내용대로 지급됩니다.</p>
-  <p class="get"><span class="p" data-tip="보상을 수령하는 플레이어">getPlayer()</span> ·
-     <span class="p" data-tip="보상을 지급하는 카테고리 번호 (1~5)">getCategory()</span> ·
-     <span class="p" data-tip="지급될 보상 목록. 수정하면 그대로 반영됩니다">getRewards()</span></p>
+  <div class="line"><span class="name">EncbookCategoryRewardClaimEvent</span><span class="cancel-o"><span class="ko">취소 가능</span><span class="en">Cancellable</span></span></div>
+  <p><b><span class="ko">카테고리 완료 보상 수령</span><span class="en">Category reward claim</span></b><br><span class="ko">카테고리 완료 보상을 지급하기 직전에 발생합니다.
+     취소하면 지급되지 않으며, <code>getRewards()</code> 로 받은 목록을 수정하면 그 내용대로 지급됩니다.</span><span
+     class="en">Fires just before a category completion reward is paid out.
+     Cancelling prevents the payout, and edits to the list from <code>getRewards()</code> are paid out as-is.</span></p>
+  <p class="get"><span class="p" data-tip="보상을 수령하는 플레이어" data-tip-en="The player claiming the reward">getPlayer()</span> ·
+     <span class="p" data-tip="보상을 지급하는 카테고리 번호 (1~5)" data-tip-en="Category number paying the reward (1–5)">getCategory()</span> ·
+     <span class="p" data-tip="지급될 보상 목록. 수정하면 그대로 반영됩니다" data-tip-en="The reward list to be paid; edits apply as-is">getRewards()</span></p>
 </div>
 
 <div class="ev">
-  <div class="line"><span class="name">EncbookProgressRewardClaimEvent</span><span class="cancel-o">취소 가능</span></div>
-  <p><b>진척도 보상 수령</b><br>진척도 보상을 지급하기 직전에 발생합니다.
-     취소하면 지급되지 않으며, <code>getRewards()</code> 로 받은 목록을 수정하면 그 내용대로 지급됩니다.</p>
-  <p class="get"><span class="p" data-tip="보상을 수령하는 플레이어">getPlayer()</span> ·
-     <span class="p" data-tip="보상을 지급하는 진척도 단계 (1~9)">getLevel()</span> ·
-     <span class="p" data-tip="지급될 보상 목록. 수정하면 그대로 반영됩니다">getRewards()</span></p>
+  <div class="line"><span class="name">EncbookProgressRewardClaimEvent</span><span class="cancel-o"><span class="ko">취소 가능</span><span class="en">Cancellable</span></span></div>
+  <p><b><span class="ko">진척도 보상 수령</span><span class="en">Progress reward claim</span></b><br><span class="ko">진척도 보상을 지급하기 직전에 발생합니다.
+     취소하면 지급되지 않으며, <code>getRewards()</code> 로 받은 목록을 수정하면 그 내용대로 지급됩니다.</span><span
+     class="en">Fires just before a progress milestone reward is paid out.
+     Cancelling prevents the payout, and edits to the list from <code>getRewards()</code> are paid out as-is.</span></p>
+  <p class="get"><span class="p" data-tip="보상을 수령하는 플레이어" data-tip-en="The player claiming the reward">getPlayer()</span> ·
+     <span class="p" data-tip="보상을 지급하는 진척도 단계 (1~9)" data-tip-en="Milestone level paying the reward (1–9)">getLevel()</span> ·
+     <span class="p" data-tip="지급될 보상 목록. 수정하면 그대로 반영됩니다" data-tip-en="The reward list to be paid; edits apply as-is">getRewards()</span></p>
 </div>
 
 <div class="ev">
-  <div class="line"><span class="name">EncbookOpenEvent</span><span class="cancel-o">취소 가능</span></div>
-  <p><b>도감 열기</b><br>도감 화면이 열리기 직전에 발생합니다. 취소하면 화면이 열리지 않습니다.</p>
-  <p class="get"><span class="p" data-tip="화면을 여는 플레이어">getViewer()</span> ·
-     <span class="p" data-tip="열람 대상 도감 주인의 UUID">getOwner()</span> ·
-     <span class="p" data-tip="열람 모드 (NORMAL 일반 · ADMIN 관리)">getMode()</span> ·
-     <span class="p" data-tip="열리는 카테고리 번호 (1~5)">getCategory()</span> ·
-     <span class="p" data-tip="열리는 페이지 번호">getPage()</span></p>
+  <div class="line"><span class="name">EncbookOpenEvent</span><span class="cancel-o"><span class="ko">취소 가능</span><span class="en">Cancellable</span></span></div>
+  <p><b><span class="ko">도감 열기</span><span class="en">Encyclopedia open</span></b><br><span class="ko">도감 화면이 열리기 직전에 발생합니다. 취소하면 화면이 열리지 않습니다.</span><span
+     class="en">Fires just before the encyclopedia screen opens. Cancelling keeps it closed.</span></p>
+  <p class="get"><span class="p" data-tip="화면을 여는 플레이어" data-tip-en="The player opening the screen">getViewer()</span> ·
+     <span class="p" data-tip="열람 대상 도감 주인의 UUID" data-tip-en="UUID of the owner whose encyclopedia is viewed">getOwner()</span> ·
+     <span class="p" data-tip="열람 모드 (NORMAL 일반 · ADMIN 관리)" data-tip-en="View mode (NORMAL · ADMIN)">getMode()</span> ·
+     <span class="p" data-tip="열리는 카테고리 번호 (1~5)" data-tip-en="Category number being opened (1–5)">getCategory()</span> ·
+     <span class="p" data-tip="열리는 페이지 번호" data-tip-en="Page number being opened">getPage()</span></p>
 </div>
 
 <div class="ev">
-  <div class="line"><span class="name">EncbookResetEvent</span><span class="cancel-o">취소 가능</span></div>
-  <p><b>도감 초기화</b><br>플레이어의 도감 기록이 초기화되기 직전에 발생합니다. 취소하면 초기화되지 않습니다.</p>
-  <p class="get"><span class="p" data-tip="초기화 대상 플레이어. 오프라인이면 null">getPlayer()</span>¹ ·
-     <span class="p" data-tip="초기화 대상 플레이어의 UUID">getTargetId()</span></p>
+  <div class="line"><span class="name">EncbookResetEvent</span><span class="cancel-o"><span class="ko">취소 가능</span><span class="en">Cancellable</span></span></div>
+  <p><b><span class="ko">도감 초기화</span><span class="en">Encyclopedia reset</span></b><br><span class="ko">플레이어의 도감 기록이 초기화되기 직전에 발생합니다. 취소하면 초기화되지 않습니다.</span><span
+     class="en">Fires just before a player's encyclopedia records are reset. Cancelling prevents the reset.</span></p>
+  <p class="get"><span class="p" data-tip="초기화 대상 플레이어. 오프라인이면 null" data-tip-en="The player being reset; null if offline">getPlayer()</span>¹ ·
+     <span class="p" data-tip="초기화 대상 플레이어의 UUID" data-tip-en="UUID of the player being reset">getTargetId()</span></p>
 </div>
 
 <div class="ev">
-  <div class="line"><span class="name">EncbookReloadEvent</span><span class="cancel-x">취소 불가</span></div>
-  <p><b>설정 리로드</b><br><code>/도감 리로드</code> 로 설정과 카탈로그를 다시 불러온 직후 발생합니다.
-     이미 끝난 작업에 대한 통지이므로 취소할 수 없습니다.</p>
+  <div class="line"><span class="name">EncbookReloadEvent</span><span class="cancel-x"><span class="ko">취소 불가</span><span class="en">Not cancellable</span></span></div>
+  <p><b><span class="ko">설정 리로드</span><span class="en">Config reload</span></b><br><span class="ko"><code>/도감 리로드</code> 로 설정과 카탈로그를 다시 불러온 직후 발생합니다.
+     이미 끝난 작업에 대한 통지이므로 취소할 수 없습니다.</span><span
+     class="en">Fires right after settings and the catalog are reloaded via <code>/도감 리로드</code> (reload command).
+     It is a notification of already-finished work and cannot be cancelled.</span></p>
 </div>
 
 <p style="font-size:13px; color:var(--muted)">
-¹ 접속 중인 대상만 돌려줍니다. 관리자·API 가 오프라인 대상을 조작한 경우 null 이므로 getPlayerId 를 사용하세요.<br>
-² 등록 경로: PLAYER_REGISTER(직접) · FEATHER(깃펜) · ADMIN(관리자) · API
+<span class="ko">¹ 접속 중인 대상만 돌려줍니다. 관리자·API 가 오프라인 대상을 조작한 경우 null 이므로 getPlayerId 를 사용하세요.<br>
+² 등록 경로: PLAYER_REGISTER(직접) · FEATHER(깃펜) · ADMIN(관리자) · API</span><span
+class="en">¹ Returns online targets only. When an admin or the API acts on an offline target this is null — use getPlayerId instead.<br>
+² Registration paths: PLAYER_REGISTER (direct) · FEATHER (quill) · ADMIN · API</span>
 </p>
 
-<pre><code><span class="comment"># 예시 : 해금 알림 + 특정 월드 해금 금지</span>
+<pre class="ko"><code><span class="comment"># 예시 : 해금 알림 + 특정 월드 해금 금지</span>
 import:
     kr.bibi.encbook.api.event.EncbookUnlockEvent
 
@@ -482,9 +632,21 @@ on EncbookUnlockEvent:
             send "&c이 월드에서는 도감을 사용할 수 없습니다" to {_p}
             stop
         send "도감 등록! (카테고리 %event.getCategory()% · 슬롯 %event.getSlot()%)" to {_p}</code></pre>
+<pre class="en"><code><span class="comment"># Example: unlock notification + block unlocks in a specific world</span>
+import:
+    kr.bibi.encbook.api.event.EncbookUnlockEvent
 
-<h2 id="rules">규칙</h2>
-<ul>
+on EncbookUnlockEvent:
+    set {_p} to event.getPlayer()
+    if {_p} is set:
+        if world of {_p} is "event_world":
+            event.setCancelled(true)
+            send "&cThe encyclopedia cannot be used in this world" to {_p}
+            stop
+        send "Registered! (category %event.getCategory()% · slot %event.getSlot()%)" to {_p}</code></pre>
+
+<h2 id="rules"><span class="ko">규칙</span><span class="en">Rules</span></h2>
+<ul class="ko">
   <li>조회 메소드는 <b>접속 여부를 신경 쓸 필요가 없습니다.</b> 접속 중이면 메모리에서 즉시,
       오프라인이면 데이터베이스에서 읽어 답합니다(읽은 도감은 몇 초간 재사용). 다만 오프라인 조회는
       데이터베이스를 거치므로, <b>수십 명을 반복문으로 훑을 때</b>는 <code>loadBook</code> 으로
@@ -494,16 +656,52 @@ on EncbookUnlockEvent:
   <li><code>openBook</code> 은 메인 스레드가 아니면 자동으로 다음 틱에 예약됩니다.</li>
   <li>공개 API(<code>kr.bibi.encbook.api</code>)의 이름은 버전이 올라가도 유지됩니다.</li>
 </ul>
+<ul class="en">
+  <li>Query methods <b>don't care whether the player is online.</b> Online players answer instantly from memory;
+      offline players are read from the database (a loaded book is reused for a few seconds). Offline queries
+      do go through the database though, so when <b>looping over dozens of players</b>, it is more efficient
+      to load each book once with <code>loadBook</code>.</li>
+  <li>Calling unlock/lock methods on an offline target starts async processing and returns <code>PENDING</code>.
+      Use <code>unlockAsync</code> when you need a confirmed result.</li>
+  <li><code>openBook</code> is automatically scheduled for the next tick when called off the main thread.</li>
+  <li>Names in the public API (<code>kr.bibi.encbook.api</code>) stay stable across versions.</li>
+</ul>
 
 <footer>
-  도감 플러그인 3.0 · 제작 BIBI (Discord: bibi.221)<br>
+  <span class="ko">도감 플러그인 3.0 · 제작 BIBI (Discord: bibi.221)<br>
   연동 문의 : <a href="https://discord.gg/KtjD884Ymu">힌트샵 디스코드</a> ·
-  <a href="../index.html">비비 스튜디오 홈</a>
+  <a href="../index.html">비비 스튜디오 홈</a></span><span
+  class="en">EncBook plugin 3.0 · by BIBI (Discord: bibi.221)<br>
+  Integration questions: <a href="https://discord.gg/KtjD884Ymu">HintSHOP Discord</a> ·
+  <a href="../index.html">BIBI Studio home</a></span>
 </footer>
 
 </div>
 
 <script>
+  // 언어 설정 버튼 — html[data-lang] 을 바꾸고 선택을 저장한다 (다음 방문에도 유지)
+  (function () {
+    var btns = Array.prototype.slice.call(document.querySelectorAll("#langSwitch button"));
+    var titles = { ko: "도감 API 문서", en: "EncBook API Docs" };
+    function apply(lang, save) {
+      document.documentElement.setAttribute("data-lang", lang);
+      document.documentElement.lang = lang;
+      document.title = titles[lang];
+      btns.forEach(function (b) {
+        var on = b.getAttribute("data-lang-btn") === lang;
+        b.classList.toggle("on", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      if (save) { try { localStorage.setItem("bibiapi-lang", lang); } catch (e) {} }
+      // 언어가 바뀌면 글 길이도 바뀌므로 목차 위치·현재 섹션 표시를 다시 계산하게 한다
+      window.dispatchEvent(new Event("resize"));
+    }
+    btns.forEach(function (b) {
+      b.addEventListener("click", function () { apply(b.getAttribute("data-lang-btn"), true); });
+    });
+    apply(document.documentElement.getAttribute("data-lang") || "ko", false);
+  })();
+
   // 페이지 전환 — 같은 사이트 안의 링크는 화면을 부드럽게 지운 뒤 이동한다
   (function () {
     // 브라우저가 네이티브 전환을 처리하면(웹 주소로 열었을 때) 수동 페이드는 쓰지 않는다
