@@ -106,13 +106,14 @@
   <tr><th>명령어</th><th>설명</th></tr>
   <tr><td><code>/도감</code></td><td>도감 페이지를 오픈합니다</td></tr>
   <tr><td><code>/도감 설정</code></td><td>등록 아이템·보상 설정 인터페이스 (관리자)</td></tr>
+  <tr><td><code>/도감 설정 초기화 &lt;아이템|보상|*&gt;</code></td><td>관리자 설정 초기화 — 클릭으로 확인, 웅크리기로 취소 (관리자)</td></tr>
   <tr><td><code>/도감 조회 &lt;플레이어&gt;</code></td><td>특정 플레이어의 도감 조회·수정 (관리자)</td></tr>
-  <tr><td><code>/도감 초기화 &lt;플레이어 | *&gt;</code></td><td>도감 진행 상황 초기화 (관리자)</td></tr>
+  <tr><td><code>/도감 데이터 초기화 &lt;플레이어 | *&gt;</code></td><td>도감 진행 상황 초기화 (관리자)</td></tr>
   <tr><td><code>/도감 아이템지급 깃펜 [개수] [플레이어]</code></td><td>비비의 깃펜(슬롯 해금권) 지급 (관리자) — 생략하면 본인에게 1개</td></tr>
   <tr><td><code>/도감 리로드</code></td><td>config.yml 다시 불러오기 (관리자, 콘솔 가능)</td></tr>
-  <tr><td><code>/도감 내보내기</code></td><td>플레이어 기록과 카탈로그를 <code>export/</code> 폴더로 내보내기 (관리자, 콘솔 가능)</td></tr>
-  <tr><td><code>/도감 가져오기 &lt;이름&gt; [확인]</code></td><td>내보낸 데이터를 다시 넣기 — 실행 전 현재 상태 자동 백업 (관리자, 콘솔 가능)</td></tr>
-  <tr><td><code>/도감 마이그레이션 [2.3|2.4|복구]</code></td><td>구버전 스크립트 데이터 이전 (관리자) — 아래 참고</td></tr>
+  <tr><td><code>/도감 데이터 내보내기</code></td><td>플레이어 기록과 카탈로그를 <code>export/</code> 폴더로 내보내기 (관리자, 콘솔 가능)</td></tr>
+  <tr><td><code>/도감 데이터 가져오기 &lt;이름&gt; [확인]</code></td><td>내보낸 데이터를 다시 넣기 — 실행 전 현재 상태 자동 백업 (관리자, 콘솔 가능)</td></tr>
+  <tr><td><code>/도감 데이터 마이그레이션 [2.3|2.4|복구]</code></td><td>구버전 스크립트 데이터 이전 (관리자) — 아래 참고</td></tr>
   <tr><td><code>/도감 정보</code></td><td>도감·서버·Java 버전, IA/Nexo·Vault 인식 상태 (관리자) — 문의 시 캡처해서 보내주세요</td></tr>
 </table>
 <p>관리자 권한 노드 : <code>encbook.admin</code> (기본값 OP)</p>
@@ -122,11 +123,11 @@
 플레이어 기록과 관리자 설정(등록 아이템·보상)을 모두 가져옵니다.</p>
 <table>
   <tr><th>명령어</th><th>설명</th></tr>
-  <tr><td><code>/도감 마이그레이션</code></td><td>사용 중이던 스크립트 버전을 자동 감지해 이전</td></tr>
-  <tr><td><code>/도감 마이그레이션 2.3</code></td><td>도감 2.0~2.3 (variables.csv 저장) 데이터 이전</td></tr>
-  <tr><td><code>/도감 마이그레이션 2.4</code></td><td>도감 2.4 Beta (플레이어별 yml 저장) 데이터 이전</td></tr>
-  <tr><td><code>/도감 마이그레이션 복구</code></td><td>되돌릴 내용 미리보기</td></tr>
-  <tr><td><code>/도감 마이그레이션 복구 확인</code></td><td>이관 전 상태로 정확히 되돌리기</td></tr>
+  <tr><td><code>/도감 데이터 마이그레이션</code></td><td>사용 중이던 스크립트 버전을 자동 감지해 이전</td></tr>
+  <tr><td><code>/도감 데이터 마이그레이션 2.3</code></td><td>도감 2.0~2.3 (variables.csv 저장) 데이터 이전</td></tr>
+  <tr><td><code>/도감 데이터 마이그레이션 2.4</code></td><td>도감 2.4 Beta (플레이어별 yml 저장) 데이터 이전</td></tr>
+  <tr><td><code>/도감 데이터 마이그레이션 복구</code></td><td>되돌릴 내용 미리보기</td></tr>
+  <tr><td><code>/도감 데이터 마이그레이션 복구 확인</code></td><td>이관 전 상태로 정확히 되돌리기</td></tr>
 </table>
 <ul>
   <li>원본 파일은 읽기만 하며 절대 수정하지 않습니다.</li>
